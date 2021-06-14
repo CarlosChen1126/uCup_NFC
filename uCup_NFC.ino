@@ -325,7 +325,8 @@ void loop()
     int start_rent_time = 0;
     start_rent_time = millis();
     u8g2.clearBuffer();
-    u8g2_print_en(15,15,"rent");
+    u8g2_print_ch(0,15,"租借模式");
+    u8g2_print_ch(0,40,"請感應學生證");
 
       //show rent message
 //      if (button == 0){
@@ -461,7 +462,8 @@ void loop()
     int start_return_time = 0;
     start_return_time = millis();
     u8g2.clearBuffer();
-    u8g2_print_en(15,15,"return");
+    u8g2_print_ch(0,15,"歸還模式");
+    u8g2_print_ch(0,40,"請感應學生證");
 //      if (button == 0){
 //        button_ctn += 1;
 //        success = false;
@@ -476,7 +478,7 @@ void loop()
         {
           //success
           //TODO: print success text
-          //「 租借成功 」
+          //「 歸還成功 」
           //「 謝謝惠顧 」
           
 
@@ -484,33 +486,33 @@ void loop()
         else if (error_code == 1)
         {
           //not registered
-          //「 租借失敗 」
+          //「 歸還失敗 」
           //「 請先註冊uCup會員 」
 
         }
         else if (error_code == 2 || error_code == 21)
         {
           //last borrowed cup not return
-          //「 租借失敗 」
+          //「 歸還失敗 」
           //「 請先歸還杯子 」
 
         }
         else if (error_code == 3)
         {
           //last borrowed less than 30mins
-          //「 租借失敗 」
+          //「 歸還失敗 」
           //「 上次租借未滿30分鐘」
         }
         else if (error_code == 4)
         {
           //cups in the store < 3
-          //「 租借失敗 」
+          //「 歸還失敗 」
           //「 商店杯子不足 」
         }
         else if (error_code == 5)
         {
           // not verified
-          //「 租借失敗 」
+          //「 歸還失敗 」
           //「」
         }
       }
@@ -523,7 +525,7 @@ void loop()
         {
           //success
           //TODO: print success text
-          //「 租借成功 」
+          //「 歸還成功 」
           //「 謝謝惠顧 」
           
 
@@ -532,7 +534,7 @@ void loop()
             if (error_code == 1)
             {
               //not registered
-              //「 租借失敗 」
+              //「 歸還失敗 」
               //「 請先註冊uCup會員 」
 
   
@@ -540,7 +542,7 @@ void loop()
             else if (error_code == 2 || error_code == 21)
             {
               //last borrowed cup not return
-              //「 租借失敗 」
+              //「 歸還失敗 」
               //「 請先歸還杯子 」
 
   
@@ -548,20 +550,20 @@ void loop()
             else if (error_code == 3)
             {
               //last borrowed less than 30mins
-              //「 租借失敗 」
+              //「 歸還失敗 」
               //「 上次租借未滿30分鐘」
             }
             else if (error_code == 4)
             {
               //cups in the store < 3
-              //「 租借失敗 」
+              //「 歸還失敗 」
               //「 商店杯子不足 」
   
             }
             else if (error_code == 5)
             {
               // not verified
-              //「 租借失敗 」
+              //「 歸還失敗 」
               //「請先綁定帳號」
               delay(500);
 
