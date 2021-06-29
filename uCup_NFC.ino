@@ -14,12 +14,15 @@ char *passphrase = "carlosyoyo";
 
 #define RENT 0
 #define RETURN 1
+#define BIND_TIME 5000 //ms
 
+String token;
+int holdingtick = 0;
 const int RST_PIN = 36; // Reset pin
 const int SS_PIN = 5;   // Slave select pin
 const String serverName = "https://ucup-dev.herokuapp.com/api";
-SoftwareSerial BarcodeScanner(12, 14); //rx,tx
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE);
+SoftwareSerial BarcodeScanner(12, 14);                                                                      //rx,tx //barcode
+U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
 byte uidd[4];
 char uid_char[9];
 String uid;
@@ -33,6 +36,7 @@ bool success = false;
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
 int button_ctn;
 int button_init = 0;
+int lastButtonState = 0;
 bool testWifi(void)
 {
   int c = 0;
@@ -288,7 +292,6 @@ void setup()
   u8g2.clearBuffer();
   u8g2_print_en(15, 15, "Welcome");
   u8g2_print_en(15, 40, "uCup");
-  u8g2_print_ch(15, 64, "歡迎使用");
 
   if (testWifi())
   {
@@ -309,21 +312,20 @@ void setup()
   delay(2000);
   u8g2.clearBuffer();
   button_init = digitalRead(17);
+  token = gettoken();
 }
 
 void loop()
 {
-  String token = gettoken();
   // manage the operation mode
-  Serial.print("Token: ");
-  Serial.println(token);
+  // Serial.print("Token: ");
+  // Serial.println(token);
   int button = digitalRead(17);
   if (button == 0)
   {
     button_ctn += 1;
     success = false;
   }
-
   switch (button_ctn % 2)
   {
   case 0:
@@ -535,7 +537,7 @@ void loop()
     {
       Serial.print("uid: ");
       Serial.println(uid);
-      http_code = cup_record(token, uid, "NFC", "uCup", "./do_return");
+      int http_code = cup_record(token, uid, "NFC", "uCup", "./do_return");
       if (http_code == 200)
       {
         Serial.println("return rfid success");
@@ -633,78 +635,79 @@ void loop()
           //「」
         }
       }
-      else if (detect_scan_qrcode() == 1)
+    }
+    else if (detect_scan_qrcode() == 1)
+    {
+      Serial.print("qrcode: ");
+      Serial.println(qrcode);
+      int http_code = cup_record(token, uid, "NFC", "uCup", "/do_return");
+      if (http_code == 200)
       {
-        Serial.print("qrcode: ");
-        Serial.println(qrcode);
-        http_code = cup_record(token, uid, "NFC", "uCup", "/do_return");
-        if (http_code == 200)
+        Serial.println("return qrcode success");
+        u8g2_print_ch(0, 15, "歸還成功");
+        u8g2_print_ch(0, 40, "謝謝惠顧");
+        delay(3000);
+        //success
+        //TODO: print success text
+        //「 歸還成功 」
+        //「 謝謝惠顧 」
+      }
+      else
+      {
+        if (error_code == 1)
         {
-          Serial.println("return qrcode success");
-          u8g2_print_ch(0, 15, "歸還成功");
-          u8g2_print_ch(0, 40, "謝謝惠顧");
+          Serial.println("return qrcode 1");
+          u8g2_print_ch(0, 15, "歸還失敗");
+          u8g2_print_ch(0, 40, "請先註冊會員");
           delay(3000);
-          //success
-          //TODO: print success text
-          //「 歸還成功 」
-          //「 謝謝惠顧 」
+          //not registered
+          //「 歸還失敗 」
+          //「 請先註冊uCup會員 」
         }
-        else
+        else if (error_code == 2 || error_code == 21)
         {
-          if (error_code == 1)
-          {
-            Serial.println("return qrcode 1");
-            u8g2_print_ch(0, 15, "歸還失敗");
-            u8g2_print_ch(0, 40, "請先註冊會員");
-            delay(3000);
-            //not registered
-            //「 歸還失敗 」
-            //「 請先註冊uCup會員 」
-          }
-          else if (error_code == 2 || error_code == 21)
-          {
-            Serial.println("return qrcode 2");
-            u8g2_print_ch(0, 15, "歸還失敗");
-            u8g2_print_ch(0, 40, "請先歸還杯子");
-            delay(3000);
-            //last borrowed cup not return
-            //「 歸還失敗 」
-            //「 請先歸還杯子 」
-          }
-          else if (error_code == 3)
-          {
-            Serial.println("return qrcode 3");
-            u8g2_print_ch(0, 15, "歸還失敗");
-            u8g2_print_ch(0, 40, "上次歸還未滿30分鐘");
-            delay(3000);
-            //last borrowed less than 30mins
-            //「 歸還失敗 」
-            //「 上次租借未滿30分鐘」
-          }
-          else if (error_code == 4)
-          {
-            Serial.println("return qrcode 4");
-            u8g2_print_ch(0, 15, "歸還失敗");
-            u8g2_print_ch(0, 40, "商店杯子不足");
-            delay(3000);
-            //cups in the store < 3
-            //「 歸還失敗 」
-            //「 商店杯子不足 」
-          }
-          else if (error_code == 5)
-          {
-            Serial.println("return qrcode 5");
-            u8g2_print_ch(0, 15, "歸還失敗");
-            u8g2_print_ch(0, 40, "請先綁定帳號");
-            // not verified
-            //「 歸還失敗 」
-            //「請先綁定帳號」
-            delay(3000);
-          }
+          Serial.println("return qrcode 2");
+          u8g2_print_ch(0, 15, "歸還失敗");
+          u8g2_print_ch(0, 40, "請先歸還杯子");
+          delay(3000);
+          //last borrowed cup not return
+          //「 歸還失敗 」
+          //「 請先歸還杯子 」
+        }
+        else if (error_code == 3)
+        {
+          Serial.println("return qrcode 3");
+          u8g2_print_ch(0, 15, "歸還失敗");
+          u8g2_print_ch(0, 40, "上次歸還未滿30分鐘");
+          delay(3000);
+          //last borrowed less than 30mins
+          //「 歸還失敗 」
+          //「 上次租借未滿30分鐘」
+        }
+        else if (error_code == 4)
+        {
+          Serial.println("return qrcode 4");
+          u8g2_print_ch(0, 15, "歸還失敗");
+          u8g2_print_ch(0, 40, "商店杯子不足");
+          delay(3000);
+          //cups in the store < 3
+          //「 歸還失敗 」
+          //「 商店杯子不足 」
+        }
+        else if (error_code == 5)
+        {
+          Serial.println("return qrcode 5");
+          u8g2_print_ch(0, 15, "歸還失敗");
+          u8g2_print_ch(0, 40, "請先綁定帳號");
+          // not verified
+          //「 歸還失敗 」
+          //「請先綁定帳號」
+          delay(3000);
         }
       }
-
-      break;
     }
+
+    break;
   }
   }
+}
