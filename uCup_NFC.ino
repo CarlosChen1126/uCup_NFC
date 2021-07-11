@@ -17,9 +17,11 @@ char *passphrase = "carlosyoyo";
 #define BIND_TIME 5000 //ms
 
 String token;
-int holdingtick = 0;
-const int RST_PIN = 36; // Reset pin
-const int SS_PIN = 5;   // Slave select pin
+const int BUZZ_PIN = 2;   //Buzzer pin
+const int LED_RED = 27;   //Red LED pin
+const int LED_GREEN = 13; //Blue LED pin
+const int RST_PIN = 36;   // Reset pin
+const int SS_PIN = 5;     // Slave select pin
 const String serverName = "https://ucup-dev.herokuapp.com/api";
 SoftwareSerial BarcodeScanner(12, 14);                                                                      //rx,tx //barcode
 U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
@@ -274,6 +276,9 @@ void u8g2_print_ch(int x, int y, String text)
   u8g2.print(text);
   //u8g2.sendBuffer();
 }
+void buzz()
+{
+}
 void setup()
 {
   Serial.begin(9600); // Initialize serial communications with the PCSerial.begin(9600);
@@ -285,6 +290,11 @@ void setup()
   pinMode(17, INPUT_PULLUP);
   //init button_ctn
   button_ctn = -1;
+  //init Buzzer
+  pinMode(BUZZ_PIN, OUTPUT);
+  //init LED
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
   //begin OLED
   u8g2.begin();
   u8g2.enableUTF8Print();
@@ -764,14 +774,5 @@ void loop()
 
     break;
   }
-  }
-
-  if (success)
-  {
-    button_ctn = 0;
-    success = false;
-    uid = "";
-    stdid = "";
-    qrcode = "";
   }
 }
