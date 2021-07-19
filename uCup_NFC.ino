@@ -337,7 +337,7 @@ void loop()
   }
   switch (button_ctn % 2)
   {
-  case 0:
+  case RENT:
   {
     //rent
     int start_rent_time = 0;
@@ -557,7 +557,7 @@ void loop()
     }
     break;
   }
-  case 1:
+  case RETURN:
   {
     //return
     int start_return_time = 0;
