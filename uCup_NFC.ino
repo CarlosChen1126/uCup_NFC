@@ -8,6 +8,7 @@
 #include <HTTPClient.h>
 #include <Arduino.h>
 #include <U8g2lib.h>
+#include "./src/Rfid.h"
 //set WiFi name and password
 char *ssid = "carlos";
 char *passphrase = "carlosyoyo";
@@ -36,7 +37,8 @@ String qrcode;
 bool is_card_valid = false;
 int error_code = -1;
 bool success = false;
-MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
+//MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
+Rfid mfrc522(SS_PIN, RST_PIN);
 int button_ctn;
 int button_init = 0;
 int lastButtonState = 0;
@@ -353,7 +355,7 @@ void loop()
     //        button_ctn += 1;
     //        success = false;
     //      }
-    if (detect_rfid() == 1)
+    if (mfrc522.detect() == 1)
     {
       Serial.print("uid: ");
       Serial.println(uid);
