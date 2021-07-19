@@ -2,9 +2,8 @@
 #include <Arduino.h>
 
 //constructor
-Buzzer::Buzzer(int pin)
+Buzzer::Buzzer(int pin) : _pin(pin)
 {
-    _pin = pin;
     pinMode(_pin, OUTPUT);
 }
 

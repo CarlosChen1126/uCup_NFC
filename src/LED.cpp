@@ -2,9 +2,8 @@
 #include <Arduino.h>
 
 //constructor
-LED::LED(int pin)
+LED::LED(int pin) : _pin(pin)
 {
-    _pin = pin;
     pinMode(_pin, OUTPUT);
 }
 
