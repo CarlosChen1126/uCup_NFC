@@ -11,6 +11,6 @@ public:
 
 private:
     int _SSPin, _RSTPin;
-}
+};
 
 //WARNING!!!! mfrc522 is an obj of MFRC522 (NEED to be solved)

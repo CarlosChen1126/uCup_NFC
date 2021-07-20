@@ -15,4 +15,4 @@ public:
 private:
     const u8g2_cb_t *_rot = U8G2_R0;
     uint8_t _Scl, _Sda;
-}
+};

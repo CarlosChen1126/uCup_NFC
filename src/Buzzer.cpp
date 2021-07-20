@@ -8,7 +8,7 @@ Buzzer::Buzzer(int pin) : _pin(pin)
 }
 
 // ring the buzzer(int BuzzSecond) //ms
-Buzzer::buzz(int ms)
+void Buzzer::buzz(int ms)
 {
     digitalWrite(_pin, HIGH);
     delay(ms);
