@@ -1,6 +1,8 @@
-#include <String.h>
 #pragma once
-class Rfid
+#include <string.h>
+#include <MFRC522.h>
+
+class Rfid : public MFRC522
 {
 public:
     Rfid(int, int);
