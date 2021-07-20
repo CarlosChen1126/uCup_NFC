@@ -36,5 +36,7 @@ void Oled::clearbuf()
 void Oled::twolines(String text1, String text2)
 {
     oled.clearbuf();
-    oled.
+    oled.print_ch(0, 15, text1);
+    oled.print_ch(0, 60, text2);
+    oled.sendbuf();
 }

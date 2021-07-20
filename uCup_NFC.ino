@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include "./src/Rfid.h"
+#include "./src/Oled.h"
 //set WiFi name and password
 char *ssid = "carlos";
 char *passphrase = "carlosyoyo";
@@ -25,8 +26,9 @@ const int LED_GREEN = 13; //Blue LED pin
 const int RST_PIN = 36;   // Reset pin
 const int SS_PIN = 5;     // Slave select pin
 const String serverName = "https://ucup-dev.herokuapp.com/api";
-SoftwareSerial BarcodeScanner(12, 14);                                                                      //rx,tx //barcode
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
+SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
+Oled oled(U8G2_R0, SCL, SDA);
 byte uidd[4];
 char uid_char[9];
 String uid;
@@ -263,22 +265,22 @@ int cup_bind(String token, String nfc_id, String ntu_id)
     return 87;
   }
 }
-void u8g2_print_en(int x, int y, String text)
-{
-  u8g2.setFont(u8g2_font_unifont_t_chinese2);
-  u8g2.setFontDirection(0);
-  u8g2.setCursor(x, y);
-  u8g2.print(text);
-  u8g2.sendBuffer();
-}
-void u8g2_print_ch(int x, int y, String text)
-{
-  u8g2.setFont(u8g2_font_unifont_t_chinese1);
-  u8g2.setFontDirection(0);
-  u8g2.setCursor(x, y);
-  u8g2.print(text);
-  //u8g2.sendBuffer();
-}
+// void u8g2_print_en(int x, int y, String text)
+// {
+//   u8g2.setFont(u8g2_font_unifont_t_chinese2);
+//   u8g2.setFontDirection(0);
+//   u8g2.setCursor(x, y);
+//   u8g2.print(text);
+//   u8g2.sendBuffer();
+// }
+// void u8g2_print_ch(int x, int y, String text)
+// {
+//   u8g2.setFont(u8g2_font_unifont_t_chinese1);
+//   u8g2.setFontDirection(0);
+//   u8g2.setCursor(x, y);
+//   u8g2.print(text);
+//   //u8g2.sendBuffer();
+// }
 void buzz()
 {
 }
@@ -345,11 +347,11 @@ void loop()
     //rent
     int start_rent_time = 0;
     start_rent_time = millis();
-    u8g2.clearBuffer();
-    u8g2_print_ch(0, 15, "租借模式");
-    u8g2_print_ch(0, 60, "請感應學生證");
-    u8g2.sendBuffer();
-
+    // u8g2.clearBuffer();
+    // u8g2_print_ch(0, 15, "租借模式");
+    // u8g2_print_ch(0, 60, "請感應學生證");
+    // u8g2.sendBuffer();
+    oled.twolines("租借模式", "請感應學生證");
     //show rent message
     //      if (button == 0){
     //        button_ctn += 1;
@@ -362,10 +364,11 @@ void loop()
       int http_code = cup_record(token, uid, "NFC", "uCup", "/do_rent");
       if (http_code == 200)
       {
-        u8g2.clearBuffer();
-        u8g2_print_ch(0, 15, "租借成功");
-        u8g2_print_ch(0, 40, "謝謝惠顧");
-        u8g2.sendBuffer();
+        // u8g2.clearBuffer();
+        // u8g2_print_ch(0, 15, "租借成功");
+        // u8g2_print_ch(0, 40, "謝謝惠顧");
+        // u8g2.sendBuffer();
+        oled.twolines("租借成功", "謝謝惠顧");
         Serial.println("rent 200");
         //success
         //TODO: print success text
@@ -379,20 +382,21 @@ void loop()
       {
         if (error_code == 1)
         {
-          u8g2.clearBuffer();
-          u8g2_print_ch(0, 15, "租借失敗");
-          u8g2_print_ch(0, 40, "請先註冊uCup會員");
-          u8g2.sendBuffer();
+          // u8g2.clearBuffer();
+          // u8g2_print_ch(0, 15, "租借失敗");
+          // u8g2_print_ch(0, 40, "請先註冊uCup會員");
+          // u8g2.sendBuffer();
+
           //not registered
           //「 租借失敗 」
           //「 請先註冊uCup會員 」
           Serial.println("rent rfid 1");
           delay(2000);
           Serial.println("direct to bind mode");
-          u8g2.clearBuffer();
-          u8g2_print_ch(0, 15, "綁定模式");
-          u8g2_print_ch(0, 40, "請掃描學生證條碼");
-          u8g2.sendBuffer();
+          // u8g2.clearBuffer();
+          // u8g2_print_ch(0, 15, "綁定模式");
+          // u8g2_print_ch(0, 40, "請掃描學生證條碼");
+          // u8g2.sendBuffer();
           int bind_start_time = millis();
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
@@ -406,19 +410,19 @@ void loop()
           if (bind_http_code == 200)
           {
             //bind success
-            u8g2.clearBuffer();
-            u8g2_print_ch(0, 15, "綁定成功");
-            u8g2_print_ch(0, 40, "請重新操作");
-            u8g2.sendBuffer();
+            // u8g2.clearBuffer();
+            // u8g2_print_ch(0, 15, "綁定成功");
+            // u8g2_print_ch(0, 40, "請重新操作");
+            // u8g2.sendBuffer();
             Serial.println("bind success");
             success = true;
           }
           else
           {
-            u8g2.clearBuffer();
-            u8g2_print_ch(0, 15, "綁定失敗");
-            u8g2_print_ch(0, 40, "請重新操作");
-            u8g2.sendBuffer();
+            // u8g2.clearBuffer();
+            // u8g2_print_ch(0, 15, "綁定失敗");
+            // u8g2_print_ch(0, 40, "請重新操作");
+            // u8g2.sendBuffer();
             Serial.println("bind fail");
             success = true;
           }
@@ -427,10 +431,10 @@ void loop()
         else if (error_code == 2 || error_code == 21)
         {
           Serial.println("rent rfid 2");
-          u8g2.clearBuffer();
-          u8g2_print_ch(0, 15, "租借失敗");
-          u8g2_print_ch(0, 40, "請先歸還杯子");
-          u8g2.sendBuffer();
+          // u8g2.clearBuffer();
+          // u8g2_print_ch(0, 15, "租借失敗");
+          // u8g2_print_ch(0, 40, "請先歸還杯子");
+          // u8g2.sendBuffer();
           //last borrowed cup not return
           //「 租借失敗 」
           //「 請先歸還杯子 」
@@ -440,10 +444,10 @@ void loop()
         else if (error_code == 3)
         {
           Serial.println("rent rfid 3");
-          u8g2.clearBuffer();
-          u8g2_print_ch(0, 15, "租借失敗");
-          u8g2_print_ch(0, 40, "上次租借未滿30分鐘");
-          u8g2.sendBuffer();
+          // u8g2.clearBuffer();
+          // u8g2_print_ch(0, 15, "租借失敗");
+          // u8g2_print_ch(0, 40, "上次租借未滿30分鐘");
+          // u8g2.sendBuffer();
           //last borrowed less than 30mins
           //「 租借失敗 」
           //「 上次租借未滿30分鐘」
@@ -452,10 +456,10 @@ void loop()
         else if (error_code == 4)
         {
           Serial.println("rent rfid 4");
-          u8g2.clearBuffer();
-          u8g2_print_ch(0, 15, "租借失敗");
-          u8g2_print_ch(0, 40, "商店杯子不足");
-          u8g2.sendBuffer();
+          // u8g2.clearBuffer();
+          // u8g2_print_ch(0, 15, "租借失敗");
+          // u8g2_print_ch(0, 40, "商店杯子不足");
+          // u8g2.sendBuffer();
           //cups in the store < 3
           //「 租借失敗 」
           //「 商店杯子不足 」
@@ -465,10 +469,10 @@ void loop()
         {
           Serial.print("rent 5");
           // not verified
-          u8g2.clearBuffer();
-          u8g2_print_ch(0, 15, "租借失敗");
-          u8g2_print_ch(0, 40, "請先註冊帳號");
-          u8g2.sendBuffer();
+          // u8g2.clearBuffer();
+          // u8g2_print_ch(0, 15, "租借失敗");
+          // u8g2_print_ch(0, 40, "請先註冊帳號");
+          // u8g2.sendBuffer();
           //「 租借失敗 」
           //「請先綁定帳號」
           delay(3000);
@@ -565,10 +569,12 @@ void loop()
     //return
     int start_return_time = 0;
     start_return_time = millis();
-    u8g2.clearBuffer();
-    u8g2_print_ch(0, 15, "歸還模式");
-    u8g2_print_ch(0, 40, "請感應學生證");
-    u8g2.sendBuffer();
+    oled.twolines("歸還模式", "請感應學生證");
+    // u8g2.clearBuffer();
+    // u8g2_print_ch(0, 15, "歸還模式");
+    // u8g2_print_ch(0, 40, "請感應學生證");
+    // u8g2.sendBuffer();
+
     //      if (button == 0){
     //        button_ctn += 1;
     //        success = false;
