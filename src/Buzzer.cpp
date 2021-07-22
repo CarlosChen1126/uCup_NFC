@@ -14,3 +14,8 @@ void Buzzer::buzz(int ms)
     delay(ms);
     digitalWrite(_pin, LOW);
 }
+
+int Buzzer::getPin()
+{
+    return _pin;
+}

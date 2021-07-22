@@ -10,6 +10,8 @@
 #include <U8g2lib.h>
 #include "./src/Rfid.h"
 #include "./src/Oled.h"
+#include "./src/Button.h"
+#include "./src/Config.h"
 //set WiFi name and password
 char *ssid = "carlos";
 char *passphrase = "carlosyoyo";
@@ -29,6 +31,8 @@ const String serverName = "https://ucup-dev.herokuapp.com/api";
 SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
 //U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
 Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
+Button button(17);
+Config config;
 byte uidd[4];
 char uid_char[9];
 String uid;
@@ -292,9 +296,7 @@ void setup()
   //begin barcode
   BarcodeScanner.begin(9600);
   //pin for button
-  pinMode(17, INPUT_PULLUP);
-  //init button_ctn
-  button_ctn = -1;
+  //pinMode(17, INPUT_PULLUP);
   //init Buzzer
   pinMode(BUZZ_PIN, OUTPUT);
   //init LED
@@ -306,11 +308,7 @@ void setup()
   // u8g2.clearBuffer();
   // u8g2_print_en(15, 15, "Welcome");
   // u8g2_print_en(15, 40, "uCup");
-  oled.begin();
-  oled.enableUTF8Print();
-  oled.clearBuffer();
-  oled.print_en(15, 15, "Welcome");
-  oled.sendBuffer();
+  oled.twolines_en("Welcome", "uCup");
 
   if (testWifi())
   {
@@ -331,7 +329,7 @@ void setup()
   delay(2000);
   //u8g2.clearBuffer();
   oled.clearBuffer();
-  button_init = digitalRead(17);
+
   token = gettoken();
 }
 
@@ -340,13 +338,15 @@ void loop()
   // manage the operation mode
   // Serial.print("Token: ");
   // Serial.println(token);
-  int button = digitalRead(17);
-  if (button == 0)
-  {
-    button_ctn += 1;
-    success = false;
-  }
-  switch (button_ctn % 2)
+  // int button = digitalRead(17);
+  // if (button == 0)
+  // {
+  //   button_ctn += 1;
+  //   success = false;
+  // }
+  button.click(config.button_cnt, config.success);
+
+  switch (config.button_cnt % 2)
   {
   case RENT:
   {

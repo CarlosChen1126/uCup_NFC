@@ -9,6 +9,7 @@ public:
     void print_ch(int, int, String);
     void print_en(int, int, String);
     void twolines(String, String);
+    void twolines_en(String, String);
 
 private:
 };

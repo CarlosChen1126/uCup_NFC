@@ -5,6 +5,7 @@ class Buzzer
 public:
     Buzzer(int);
     void buzz(int);
+    int getPin();
 
 private:
     int _pin;
