@@ -7,7 +7,7 @@ class Rfid : public MFRC522
 public:
     Rfid(int, int);
     void arr2str(byte *, const unsigned int, char *);
-    int detect(String &);
+    //int detect(String &);
 
 private:
     int _SSPin, _RSTPin;

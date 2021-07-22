@@ -28,7 +28,7 @@ const int SS_PIN = 5;     // Slave select pin
 const String serverName = "https://ucup-dev.herokuapp.com/api";
 SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
 //U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
-Oled oled(U8G2_R0, SCL, SDA);
+Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 byte uidd[4];
 char uid_char[9];
 String uid;
@@ -306,7 +306,11 @@ void setup()
   // u8g2.clearBuffer();
   // u8g2_print_en(15, 15, "Welcome");
   // u8g2_print_en(15, 40, "uCup");
+  oled.begin();
+  oled.enableUTF8Print();
+  oled.clearBuffer();
   oled.print_en(15, 15, "Welcome");
+  oled.sendBuffer();
 
   if (testWifi())
   {
@@ -326,7 +330,7 @@ void setup()
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
   delay(2000);
   //u8g2.clearBuffer();
-  oled.clearbuf();
+  oled.clearBuffer();
   button_init = digitalRead(17);
   token = gettoken();
 }
