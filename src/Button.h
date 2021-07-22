@@ -1,4 +1,5 @@
 #pragma once
+// #define holding_threshold 10
 class Button
 {
 public:
@@ -8,4 +9,5 @@ public:
 
 private:
     int _pin;
+    //int holding_tick;
 };

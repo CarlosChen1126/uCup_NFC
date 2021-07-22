@@ -27,7 +27,7 @@ const int LED_RED = 27;   //Red LED pin
 const int LED_GREEN = 13; //Blue LED pin
 const int RST_PIN = 36;   // Reset pin
 const int SS_PIN = 5;     // Slave select pin
-const String serverName = "https://ucup-dev.herokuapp.com/api";
+//const String serverName = "https://ucup-dev.herokuapp.com/api";
 SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
 //U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
 Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
@@ -43,8 +43,8 @@ String qrcode;
 bool is_card_valid = false;
 int error_code = -1;
 bool success = false;
-MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
-//Rfid mfrc522(SS_PIN, RST_PIN);
+//MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
+Rfid rc522(SS_PIN, RST_PIN);
 int button_ctn;
 int button_init = 0;
 int lastButtonState = 0;
@@ -75,46 +75,46 @@ void array_to_string(byte array[], unsigned int len, char buffer[])
   }
   buffer[len * 2] = '\0';
 }
-int detect_rfid()
-{
-  int res = 0;
-  if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial())
-  {
-    return 0;
-  }
-  MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
-  if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&
-      piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
-      piccType != MFRC522::PICC_TYPE_MIFARE_4K)
-  {
-    Serial.println(F("Your tag is not of type MIFARE Classic."));
-    return 0;
-  }
-  if (mfrc522.uid.uidByte[0] != uid[0] ||
-      mfrc522.uid.uidByte[1] != uid[1] ||
-      mfrc522.uid.uidByte[2] != uid[2] ||
-      mfrc522.uid.uidByte[3] != uid[3])
-  {
-    res = 1;
-    for (byte i = 0; i < 4; i++)
-    {
-      uidd[i] = mfrc522.uid.uidByte[i];
-    }
-    Serial.print("uid: ");
-    array_to_string(uidd, 4, uid_char);
-    String uid_tmp(uid_char);
-    uid = uid_tmp;
-    //test uid
-    Serial.print(uid);
-  }
-  else
-  {
-    //same card
-    res = 2;
-  }
-  mfrc522.PICC_HaltA();
-  return res;
-}
+// int detect_rfid()
+// {
+//   int res = 0;
+//   if (!mfrc522.PICC_IsNewCardPresent() || !mfrc522.PICC_ReadCardSerial())
+//   {
+//     return 0;
+//   }
+//   MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
+//   if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&
+//       piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
+//       piccType != MFRC522::PICC_TYPE_MIFARE_4K)
+//   {
+//     Serial.println(F("Your tag is not of type MIFARE Classic."));
+//     return 0;
+//   }
+//   if (mfrc522.uid.uidByte[0] != uid[0] ||
+//       mfrc522.uid.uidByte[1] != uid[1] ||
+//       mfrc522.uid.uidByte[2] != uid[2] ||
+//       mfrc522.uid.uidByte[3] != uid[3])
+//   {
+//     res = 1;
+//     for (byte i = 0; i < 4; i++)
+//     {
+//       uidd[i] = mfrc522.uid.uidByte[i];
+//     }
+//     Serial.print("uid: ");
+//     array_to_string(uidd, 4, uid_char);
+//     String uid_tmp(uid_char);
+//     uid = uid_tmp;
+//     //test uid
+//     Serial.print(uid);
+//   }
+//   else
+//   {
+//     //same card
+//     res = 2;
+//   }
+//   mfrc522.PICC_HaltA();
+//   return res;
+// }
 int detect_scan_std()
 {
   int index = 0;
@@ -156,7 +156,7 @@ String gettoken()
     HTTPClient http;
 
     // Your Domain name with URL path or IP address with path
-    http.begin(serverName + "/stores/login");
+    http.begin(config.servername + "/stores/login");
 
     // Specify content-type header
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -178,6 +178,8 @@ String gettoken()
     //parse the data to get token
     String token = doc["token"];
     token = "Bearer " + token;
+    Serial.println("token:");
+    Serial.println(token);
     return token;
   }
   else
@@ -191,13 +193,13 @@ int cup_record(String token, String stdID, String provider, String type, String 
   {
     HTTPClient http;
 
-    http.begin(serverName + "/record" + operation);
+    http.begin(config.servername + "/record" + operation);
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     http.addHeader("Authorization", token);
 
     String httpRequestData = "user_id=" + stdID + "&provider=" + provider + "&cup_type=" + type;
     //log info of http req
-    Serial.println(serverName + "/record" + operation);
+    Serial.println(config.servername + "/record" + operation);
     Serial.print("token: ");
     Serial.println(token);
     Serial.print("req data: ");
@@ -233,13 +235,13 @@ int cup_bind(String token, String nfc_id, String ntu_id)
   {
     HTTPClient http;
 
-    http.begin(serverName + "/users/bind_ntu_nfc");
+    http.begin(config.servername + "/users/bind_ntu_nfc");
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     http.addHeader("Authorization", token);
 
     String httpRequestData = "nfc_id=" + nfc_id + "&ntu_id=" + ntu_id;
     //log info of http req
-    Serial.println(serverName + "/users/bind_ntu_nfc");
+    Serial.println(config.servername + "/users/bind_ntu_nfc");
     Serial.print("token: ");
     Serial.println(token);
     Serial.print("req data: ");
@@ -322,9 +324,9 @@ void setup()
     //log WiFi error
     Serial.println("WiFi connected NG");
   }
-  SPI.begin();                       // Init SPI bus
-  mfrc522.PCD_Init();                // Init MFRC522
-  mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
+  SPI.begin(); // Init SPI bus
+  //mfrc522.PCD_Init();                // Init MFRC522
+  //mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
   delay(2000);
   //u8g2.clearBuffer();
@@ -363,11 +365,13 @@ void loop()
     //        button_ctn += 1;
     //        success = false;
     //      }
-    if (detect_rfid() == 1)
+    Serial.println("test:");
+    Serial.println(rc522.detect(config.uid));
+    if (rc522.detect(config.uid) == 1)
     {
       Serial.print("uid: ");
-      Serial.println(uid);
-      int http_code = cup_record(token, uid, "NFC", "uCup", "/do_rent");
+      Serial.println(config.uid);
+      int http_code = cup_record(token, config.uid, "NFC", "uCup", "/do_rent");
       if (http_code == 200)
       {
         // u8g2.clearBuffer();
@@ -396,6 +400,7 @@ void loop()
           //not registered
           //「 租借失敗 」
           //「 請先註冊uCup會員 」
+          oled.twolines("租借失敗", "請先註冊會員");
           Serial.println("rent rfid 1");
           delay(2000);
           Serial.println("direct to bind mode");
@@ -403,6 +408,7 @@ void loop()
           // u8g2_print_ch(0, 15, "綁定模式");
           // u8g2_print_ch(0, 40, "請掃描學生證條碼");
           // u8g2.sendBuffer();
+          oled.twolines("綁定模式", "請掃描學生證條碼");
           int bind_start_time = millis();
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
@@ -420,6 +426,7 @@ void loop()
             // u8g2_print_ch(0, 15, "綁定成功");
             // u8g2_print_ch(0, 40, "請重新操作");
             // u8g2.sendBuffer();
+            oled.twolines("綁定成功", "請重新操作");
             Serial.println("bind success");
             success = true;
           }
@@ -429,6 +436,7 @@ void loop()
             // u8g2_print_ch(0, 15, "綁定失敗");
             // u8g2_print_ch(0, 40, "請重新操作");
             // u8g2.sendBuffer();
+            oled.twolines("綁定失敗", "請重新操作");
             Serial.println("bind fail");
             success = true;
           }
@@ -437,6 +445,7 @@ void loop()
         else if (error_code == 2 || error_code == 21)
         {
           Serial.println("rent rfid 2");
+          oled.twolines("租借失敗", "請先歸還杯子");
           // u8g2.clearBuffer();
           // u8g2_print_ch(0, 15, "租借失敗");
           // u8g2_print_ch(0, 40, "請先歸還杯子");
@@ -450,6 +459,8 @@ void loop()
         else if (error_code == 3)
         {
           Serial.println("rent rfid 3");
+          oled.twolines("租借失敗", "上次租借未滿30分鐘");
+
           // u8g2.clearBuffer();
           // u8g2_print_ch(0, 15, "租借失敗");
           // u8g2_print_ch(0, 40, "上次租借未滿30分鐘");
@@ -462,6 +473,7 @@ void loop()
         else if (error_code == 4)
         {
           Serial.println("rent rfid 4");
+          oled.twolines("租借失敗", "商店杯子不足");
           // u8g2.clearBuffer();
           // u8g2_print_ch(0, 15, "租借失敗");
           // u8g2_print_ch(0, 40, "商店杯子不足");
@@ -474,6 +486,8 @@ void loop()
         else if (error_code == 5)
         {
           Serial.print("rent 5");
+          oled.twolines("租借失敗", "請先註冊帳號");
+
           // not verified
           // u8g2.clearBuffer();
           // u8g2_print_ch(0, 15, "租借失敗");
@@ -586,7 +600,7 @@ void loop()
     //        success = false;
     //      }
     //show return message
-    if (detect_rfid() == 1)
+    if (rc522.detect(config.uid) == 1)
     {
       Serial.print("uid: ");
       Serial.println(uid);
