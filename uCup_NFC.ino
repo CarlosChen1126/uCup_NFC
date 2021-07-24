@@ -367,12 +367,10 @@ void loop()
     //        button_ctn += 1;
     //        success = false;
     //      }
-    Serial.println("test:");
-    Serial.println(rc522.detect(config.uid));
     if (rc522.detect(config.uid) == 1)
     {
-      Serial.print("uid: ");
-      Serial.println(config.uid);
+      Serial.println("test:");
+      Serial.println(rc522.detect(config.uid));
       int http_code = cup_record(token, config.uid, "NFC", "uCup", "/do_rent");
       if (http_code == 200)
       {

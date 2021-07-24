@@ -1,9 +1,11 @@
 #include "Rfid.h"
+#include <SPI.h>
 #include <Arduino.h>
 #include <MFRC522.h>
 
 Rfid::Rfid(int Ss, int Rst) : _SSPin(Ss), _RSTPin(Rst)
 {
+    SPI.begin();
     PCD_Init();
     PCD_DumpVersionToSerial();
 }
