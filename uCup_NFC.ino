@@ -11,6 +11,8 @@
 #include "./src/Button.h"
 #include "./src/Config.h"
 #include "./src/Barcode.h"
+#include "./src/Buzzer.h"
+#include "./src/LED.h"
 //set WiFi name and password
 // char *ssid = "carlos";
 // char *passphrase = "carlosyoyo";
@@ -39,6 +41,9 @@ Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 Button button(17);
 Config config;
 Barcode barcode(12, 14);
+Buzzer buzzer(2);
+LED LED_R(27);
+LED LED_G(13);
 // byte uidd[4];
 // char uid_char[9];
 // String uid;
@@ -51,9 +56,6 @@ Barcode barcode(12, 14);
 // bool success = false;
 //MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
 Rfid rc522(SS_PIN, RST_PIN);
-int button_ctn;
-int button_init = 0;
-int lastButtonState = 0;
 // bool testWifi(void)
 // {
 //   int c = 0;
@@ -70,17 +72,17 @@ int lastButtonState = 0;
 //   }
 //   return false;
 // }
-void array_to_string(byte array[], unsigned int len, char buffer[])
-{
-  for (unsigned int i = 0; i < len; i++)
-  {
-    byte nib1 = (array[i] >> 4) & 0x0F;
-    byte nib2 = (array[i] >> 0) & 0x0F;
-    buffer[i * 2 + 0] = nib1 < 0xA ? '0' + nib1 : 'A' + nib1 - 0xA;
-    buffer[i * 2 + 1] = nib2 < 0xA ? '0' + nib2 : 'A' + nib2 - 0xA;
-  }
-  buffer[len * 2] = '\0';
-}
+// void array_to_string(byte array[], unsigned int len, char buffer[])
+// {
+//   for (unsigned int i = 0; i < len; i++)
+//   {
+//     byte nib1 = (array[i] >> 4) & 0x0F;
+//     byte nib2 = (array[i] >> 0) & 0x0F;
+//     buffer[i * 2 + 0] = nib1 < 0xA ? '0' + nib1 : 'A' + nib1 - 0xA;
+//     buffer[i * 2 + 1] = nib2 < 0xA ? '0' + nib2 : 'A' + nib2 - 0xA;
+//   }
+//   buffer[len * 2] = '\0';
+// }
 
 String gettoken()
 {
@@ -152,9 +154,9 @@ int cup_record(String token, String stdID, String provider, String type, String 
       return 87;
     }
 
-    error_code = doc["error_code"];
+    config.error_code = doc["error_code"];
     Serial.print("error_code: ");
-    Serial.println(error_code);
+    Serial.println(config.error_code);
     return httpResponseCode;
   }
   else
@@ -220,8 +222,8 @@ void setup()
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
   esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
   esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
-  esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();                             //set config settings to default
-  esp_wifi_sta_wpa2_ent_enable(&config);                                             //set config settings to enable function
+  esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
+  esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
   WiFi.begin(ssid);                                                                  //connect to wifi
   int counter = 0;
   while (WiFi.status() != WL_CONNECTED)
@@ -239,10 +241,10 @@ void setup()
   Serial.println("IP address set: ");
   Serial.println(WiFi.localIP()); //print LAN IP
   //init Buzzer
-  pinMode(BUZZ_PIN, OUTPUT);
+  //pinMode(BUZZ_PIN, OUTPUT);
   //init LED
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
+  // pinMode(LED_GREEN, OUTPUT);
+  // pinMode(LED_RED, OUTPUT);
   //begin OLED
   // u8g2.begin();
   // u8g2.enableUTF8Print();
@@ -319,6 +321,7 @@ void loop()
         // u8g2.sendBuffer();
         oled.twolines("租借成功", "謝謝惠顧");
         Serial.println("rent 200");
+        LED_G.blink(1500);
         //success
         //TODO: print success text
         //「 租借成功 」
@@ -327,7 +330,7 @@ void loop()
         config.stdID = "";
         config.uid = "";
         config.success = true;
-        delay(3000);
+        delay(1500);
       }
       else
       {
@@ -384,7 +387,7 @@ void loop()
           }
           delay(3000);
         }
-        else if (error_code == 2 || error_code == 21)
+        else if (config.error_code == 2 || config.error_code == 21)
         {
           Serial.println("rent rfid 2");
           oled.twolines("租借失敗", "請先歸還杯子");
@@ -398,7 +401,7 @@ void loop()
           delay(3000);
           success = true;
         }
-        else if (error_code == 3)
+        else if (config.error_code == 3)
         {
           Serial.println("rent rfid 3");
           oled.twolines("租借失敗", "上次租借未滿30分鐘");
@@ -412,7 +415,7 @@ void loop()
           //「 上次租借未滿30分鐘」
           delay(3000);
         }
-        else if (error_code == 4)
+        else if (config.error_code == 4)
         {
           Serial.println("rent rfid 4");
           oled.twolines("租借失敗", "商店杯子不足");
@@ -425,7 +428,7 @@ void loop()
           //「 商店杯子不足 」
           delay(3000);
         }
-        else if (error_code == 5)
+        else if (config.error_code == 5)
         {
           Serial.print("rent 5");
           oled.twolines("租借失敗", "請先註冊帳號");
@@ -464,7 +467,7 @@ void loop()
       }
       else
       {
-        if (error_code == 1)
+        if (config.error_code == 1)
         {
           Serial.println("rent qrcode 1");
           oled.twolines("租借失敗", "請先註冊會員");
@@ -477,7 +480,7 @@ void loop()
           //「 租借失敗 」
           //「 請先註冊uCup會員 」
         }
-        else if (error_code == 2 || error_code == 21)
+        else if (config.error_code == 2 || config.error_code == 21)
         {
           Serial.println("rent qrcode 2");
           oled.twolines("租借失敗", "請先歸還杯子");
@@ -490,7 +493,7 @@ void loop()
           //「 租借失敗 」
           //「 請先歸還杯子 」
         }
-        else if (error_code == 3)
+        else if (config.error_code == 3)
         {
           Serial.println("rent qrcode 3");
           oled.twolines("租借失敗", "上次租借未滿30分鐘");
@@ -503,7 +506,7 @@ void loop()
           //「 租借失敗 」
           //「 上次租借未滿30分鐘」
         }
-        else if (error_code == 4)
+        else if (config.error_code == 4)
         {
           Serial.println("rent qrcode 4");
           oled.twolines("租借失敗", "商店杯子不足");
@@ -516,7 +519,7 @@ void loop()
           //「 租借失敗 」
           //「 商店杯子不足 」
         }
-        else if (error_code == 5)
+        else if (config.error_code == 5)
         {
           Serial.println("rent qrcode 5");
           oled.twolines("租借失敗", "請先綁定帳號");
@@ -577,7 +580,7 @@ void loop()
       }
       else
       {
-        if (error_code == 1)
+        if (config.error_code == 1)
         {
           Serial.println("return rfid 1");
           oled.twolines("歸還失敗", "請先註冊會員");
@@ -629,7 +632,7 @@ void loop()
           delay(3000);
           //not registered
         }
-        else if (error_code == 2 || error_code == 21)
+        else if (config.error_code == 2 || config.error_code == 21)
         {
           Serial.println("return rfid 2");
           oled.twolines("歸還失敗", "請先歸還杯子");
@@ -640,7 +643,7 @@ void loop()
           delay(3000);
           //last borrowed cup not return
         }
-        else if (error_code == 3)
+        else if (config.error_code == 3)
         {
           Serial.println("return rfid 3");
           oled.twolines("歸還失敗", "上次歸還未滿30分鐘");
@@ -652,7 +655,7 @@ void loop()
 
           //last borrowed less than 30mins
         }
-        else if (error_code == 4)
+        else if (config.error_code == 4)
         {
           Serial.println("return rfid 4");
           // u8g2.clearBuffer();
@@ -664,7 +667,7 @@ void loop()
           //「 歸還失敗 」
           //「 商店杯子不足 」
         }
-        else if (error_code == 5)
+        else if (config.error_code == 5)
         {
           Serial.println("return rfid 5");
           oled.twolines("歸還失敗", "請先註冊帳號");
@@ -698,7 +701,7 @@ void loop()
       }
       else
       {
-        if (error_code == 1)
+        if (config.error_code == 1)
         {
           Serial.println("return qrcode 1");
           oled.twolines("歸還失敗", "請先註冊會員");
@@ -709,7 +712,7 @@ void loop()
           delay(3000);
           //not registered
         }
-        else if (error_code == 2 || error_code == 21)
+        else if (config.error_code == 2 || config.error_code == 21)
         {
           Serial.println("return qrcode 2");
           oled.twolines("歸還失敗", "請先歸還杯子");
@@ -720,7 +723,7 @@ void loop()
           delay(3000);
           //last borrowed cup not return
         }
-        else if (error_code == 3)
+        else if (config.error_code == 3)
         {
           Serial.println("return qrcode 3");
           oled.twolines("歸還失敗", "上次歸還未滿30分鐘");
@@ -733,7 +736,7 @@ void loop()
           //「 歸還失敗 」
           //「 上次租借未滿30分鐘」
         }
-        else if (error_code == 4)
+        else if (config.error_code == 4)
         {
           Serial.println("return qrcode 4");
           oled.twolines("歸還失敗", "商店杯子不足");
@@ -744,7 +747,7 @@ void loop()
           delay(3000);
           //cups in the store < 3
         }
-        else if (error_code == 5)
+        else if (config.error_code == 5)
         {
           Serial.println("return qrcode 5");
           oled.twolines("歸還失敗", "請先註冊帳號");
