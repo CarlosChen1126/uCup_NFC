@@ -5,8 +5,25 @@
 
 Barcode::Barcode(int rx, int tx) : _Rx(rx), _Tx(tx)
 {
-    SoftwareSerial BarcodeScanner(_Rx, _Tx); // rx=12, tx=14
+    begin(9600);
 }
-int Barcode::detect()
+int Barcode::detect(int len, String &ID)
 {
+    int index = 0;
+    char id_barcode[len];
+    if (available())
+    {
+        while (index < len)
+        {
+            id_barcode[index] = (char)(read());
+            index++;
+        }
+        id_barcode[index] = '\0';
+        String stdid_tmp(id_barcode);
+        ID = stdid_tmp;
+        return 1;
+    }
+    Serial.println("len:");
+    Serial.println(len);
+    return 0;
 }

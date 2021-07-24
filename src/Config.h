@@ -11,9 +11,9 @@ struct Config
     // const char *password; // Wifi User password
     String servername = "https://ucup-dev.herokuapp.com/api"; //Server's URL
     // int error_code;       // error code return from server
-    // String stdID;         //User's Student ID
-    String uid = ""; // User's NFC ID
-    // String qrcode;        // User's uCup line qrcode
+    String stdID = "";  //User's Student ID
+    String uid = "";    // User's NFC ID
+    String qrcode = ""; // User's uCup line qrcode
     bool success = false;
     int button_cnt = -1;
 };

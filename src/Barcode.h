@@ -1,10 +1,12 @@
 #pragma once
 #include <Arduino.h>
-class Barcode
+#include <String.h>
+#include "SoftwareSerial.h"
+class Barcode : public SoftwareSerial
 {
 public:
     Barcode(int, int);
-    int detect();
+    int detect(int, String &);
 
 private:
     int _Rx, _Tx;

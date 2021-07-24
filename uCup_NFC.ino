@@ -12,6 +12,7 @@
 #include "./src/Oled.h"
 #include "./src/Button.h"
 #include "./src/Config.h"
+#include "./src/Barcode.h"
 //set WiFi name and password
 // char *ssid = "carlos";
 // char *passphrase = "carlosyoyo";
@@ -30,11 +31,12 @@ const int LED_GREEN = 13; //Blue LED pin
 const int RST_PIN = 36;   // Reset pin
 const int SS_PIN = 5;     // Slave select pin
 //const String serverName = "https://ucup-dev.herokuapp.com/api";
-SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
+//SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
 //U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
 Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 Button button(17);
 Config config;
+Barcode barcode(12, 14);
 byte uidd[4];
 char uid_char[9];
 String uid;
@@ -117,40 +119,40 @@ void array_to_string(byte array[], unsigned int len, char buffer[])
 //   mfrc522.PICC_HaltA();
 //   return res;
 // }
-int detect_scan_std()
-{
-  int index = 0;
-  if (BarcodeScanner.available())
-  {
-    while (index < 9)
-    {
-      std_id_barcode[index] = (char)(BarcodeScanner.read());
-      index++;
-    }
-    std_id_barcode[index] = '\0';
-    String stdid_tmp(std_id_barcode);
-    stdid = stdid_tmp;
-    return 1;
-  }
-  return 0;
-}
-int detect_scan_qrcode()
-{
-  int index = 0;
-  if (BarcodeScanner.available())
-  {
-    while (index < 36)
-    {
-      qrcode_barcode[index] = (char)(BarcodeScanner.read());
-      index++;
-    }
-    std_id_barcode[index] = '\0';
-    String qrcode_tmp(qrcode_barcode);
-    qrcode = qrcode_tmp;
-    return 1;
-  }
-  return 0;
-}
+// int detect_scan_std()
+// {
+//   int index = 0;
+//   if (BarcodeScanner.available())
+//   {
+//     while (index < 9)
+//     {
+//       std_id_barcode[index] = (char)(BarcodeScanner.read());
+//       index++;
+//     }
+//     std_id_barcode[index] = '\0';
+//     String stdid_tmp(std_id_barcode);
+//     stdid = stdid_tmp;
+//     return 1;
+//   }
+//   return 0;
+// }
+// int detect_scan_qrcode()
+// {
+//   int index = 0;
+//   if (BarcodeScanner.available())
+//   {
+//     while (index < 36)
+//     {
+//       qrcode_barcode[index] = (char)(BarcodeScanner.read());
+//       index++;
+//     }
+//     std_id_barcode[index] = '\0';
+//     String qrcode_tmp(qrcode_barcode);
+//     qrcode = qrcode_tmp;
+//     return 1;
+//   }
+//   return 0;
+// }
 String gettoken()
 {
   if (WiFi.status() == WL_CONNECTED)
@@ -298,7 +300,7 @@ void setup()
   //begin WiFi
   WiFi.begin(ssid, passphrase);
   //begin barcode
-  BarcodeScanner.begin(9600);
+  //BarcodeScanner.begin(9600);
   //pin for button
   //pinMode(17, INPUT_PULLUP);
   //init Buzzer
@@ -413,9 +415,9 @@ void loop()
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
           {
-            if (detect_scan_std() == 1)
+            if (barcode.detect(9, config.stdID) == 1)
             {
-              bind_http_code = cup_bind(token, uid, stdid);
+              bind_http_code = cup_bind(token, config.uid, config.stdID);
               break;
             }
           }
@@ -499,11 +501,11 @@ void loop()
         }
       }
     }
-    else if (detect_scan_qrcode() == 1)
+    else if (barcode.detect(36, config.qrcode) == 1)
     {
       Serial.print("qrcode: ");
-      Serial.println(qrcode);
-      int http_code = cup_record(token, qrcode, "Normal", "uCup", "/do_rent");
+      Serial.println(config.qrcode);
+      int http_code = cup_record(token, config.qrcode, "Normal", "uCup", "/do_rent");
       if (http_code == 200)
       {
         Serial.println("rent qrcode success");
@@ -603,8 +605,8 @@ void loop()
     if (rc522.detect(config.uid) == 1)
     {
       Serial.print("uid: ");
-      Serial.println(uid);
-      int http_code = cup_record(token, uid, "NFC", "uCup", "./do_return");
+      Serial.println(config.uid);
+      int http_code = cup_record(token, config.uid, "NFC", "uCup", "./do_return");
       if (http_code == 200)
       {
         Serial.println("return rfid success");
@@ -622,9 +624,9 @@ void loop()
         int bind_http_code = 0;
         while (millis() - bind_start_time < BIND_TIME)
         {
-          if (detect_scan_std() == 1)
+          if (barcode.detect(9, config.stdID) == 1)
           {
-            bind_http_code = cup_bind(token, uid, stdid);
+            bind_http_code = cup_bind(token, config.uid, config.stdID);
             break;
           }
         }
@@ -718,11 +720,11 @@ void loop()
         }
       }
     }
-    else if (detect_scan_qrcode() == 1)
+    else if (barcode.detect(36, config.qrcode) == 1)
     {
       Serial.print("qrcode: ");
-      Serial.println(qrcode);
-      int http_code = cup_record(token, uid, "NFC", "uCup", "/do_return");
+      Serial.println(config.qrcode);
+      int http_code = cup_record(token, config.uid, "NFC", "uCup", "/do_return");
       if (http_code == 200)
       {
         Serial.println("return qrcode success");
