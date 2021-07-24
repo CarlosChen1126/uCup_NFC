@@ -23,7 +23,5 @@ int Barcode::detect(int len, String &ID)
         ID = stdid_tmp;
         return 1;
     }
-    Serial.println("len:");
-    Serial.println(len);
     return 0;
 }
