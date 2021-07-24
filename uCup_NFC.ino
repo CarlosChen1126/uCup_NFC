@@ -13,9 +13,11 @@
 #include "./src/Button.h"
 #include "./src/Config.h"
 //set WiFi name and password
-char *ssid = "carlos";
-char *passphrase = "carlosyoyo";
+// char *ssid = "carlos";
+// char *passphrase = "carlosyoyo";
 
+char *ssid = "MakerSpace_2.4G";
+char *passphrase = "ntueesaad";
 #define RENT 0
 #define RETURN 1
 #define BIND_TIME 5000 //ms
