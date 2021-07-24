@@ -1,14 +1,11 @@
-#include "SoftwareSerial.h"
 #include "WiFi.h"
 #include <String.h>
 #include <SPI.h>
-#include <MFRC522.h>
 #include <Wire.h>
 #include "esp_wpa2.h"
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 #include <Arduino.h>
-#include <U8g2lib.h>
 #include "./src/Rfid.h"
 #include "./src/Oled.h"
 #include "./src/Button.h"
@@ -42,16 +39,16 @@ Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 Button button(17);
 Config config;
 Barcode barcode(12, 14);
-byte uidd[4];
-char uid_char[9];
-String uid;
-char std_id_barcode[9];
-char qrcode_barcode[36];
-String stdid;
-String qrcode;
-bool is_card_valid = false;
-int error_code = -1;
-bool success = false;
+// byte uidd[4];
+// char uid_char[9];
+// String uid;
+// char std_id_barcode[9];
+// char qrcode_barcode[36];
+// String stdid;
+// String qrcode;
+// bool is_card_valid = false;
+// int error_code = -1;
+// bool success = false;
 //MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
 Rfid rc522(SS_PIN, RST_PIN);
 int button_ctn;
@@ -254,18 +251,18 @@ void setup()
   // u8g2_print_en(15, 40, "uCup");
   oled.twolines_en("Welcome", "uCup");
 
-//  if (testWifi())
-//  {
-//    //show WiFi IP address
-//    Serial.println("WiFi connected OK");
-//    Serial.print("Local IP: ");
-//    Serial.println(WiFi.localIP());
-//  }
-//  else
-//  {
-//    //log WiFi error
-//    Serial.println("WiFi connected NG");
-//  }
+  //  if (testWifi())
+  //  {
+  //    //show WiFi IP address
+  //    Serial.println("WiFi connected OK");
+  //    Serial.print("Local IP: ");
+  //    Serial.println(WiFi.localIP());
+  //  }
+  //  else
+  //  {
+  //    //log WiFi error
+  //    Serial.println("WiFi connected NG");
+  //  }
   SPI.begin(); // Init SPI bus
   //mfrc522.PCD_Init();                // Init MFRC522
   //mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
