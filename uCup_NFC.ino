@@ -364,7 +364,7 @@ void loop()
             int bind_work = barcode.detect(9, config.stdID);
             if (bind_work == 1)
             {
-              bind_http_code = cup_bind(config.token, config.uid, config.stdID);
+              bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
               break;
             }
           }
@@ -607,7 +607,7 @@ void loop()
             int bind_work = barcode.detect(9, config.stdID);
             if (bind_work == 1)
             {
-              bind_http_code = cup_bind(config.token, config.uid, config.stdID);
+              bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
               break;
             }
           }

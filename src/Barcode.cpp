@@ -5,7 +5,7 @@
 
 Barcode::Barcode(int rx, int tx) : _Rx(rx), _Tx(tx)
 {
-    begin(9600);
+    begin(115200);
 }
 int Barcode::detect(int len, String &ID)
 {

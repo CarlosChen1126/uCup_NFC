@@ -38,6 +38,43 @@ String MyServer::GetToken()
 }
 int MyServer::CupBind(String token, String nfc_id, String ntu_id)
 {
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        HTTPClient http;
+
+        http.begin(servername + "/users/bind_ntu_nfc");
+        http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        http.addHeader("Authorization", token);
+
+        String httpRequestData = "nfc_id=" + nfc_id + "&ntu_id=" + ntu_id;
+        //log info of http req
+        Serial.println(servername + "/users/bind_ntu_nfc");
+        Serial.print("bind req data: ");
+        Serial.println(httpRequestData);
+        Serial.println("binding");
+        StaticJsonDocument<900> doc;
+        int httpResponseCode = http.POST(httpRequestData);
+        String res = http.getString();
+        DeserializationError error = deserializeJson(doc, res);
+
+        if (error)
+        {
+            Serial.print(F("deserializeJson() failed: "));
+            Serial.println(error.f_str());
+            return 87;
+        }
+
+        int res_code = doc["error_record"];
+        Serial.print("cup_httpcode: ");
+        Serial.println(httpResponseCode);
+        Serial.print("error_code: ");
+        Serial.println(res_code);
+        return httpResponseCode;
+    }
+    else
+    {
+        return 87;
+    }
 }
 int MyServer::CupRecord(String token, String std_id, String provider, String type, String operation, int &errorcode)
 {
