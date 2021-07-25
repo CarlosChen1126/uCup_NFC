@@ -13,6 +13,7 @@
 #include "./src/Barcode.h"
 #include "./src/Buzzer.h"
 #include "./src/LED.h"
+#include "./src/MyServer.h"
 //set WiFi name and password
 // char *ssid = "carlos";
 // char *passphrase = "carlosyoyo";
@@ -44,6 +45,7 @@ Barcode barcode(12, 14);
 Buzzer buzzer(2);
 LED LED_R(27);
 LED LED_G(13);
+MyServer server;
 // byte uidd[4];
 // char uid_char[9];
 // String uid;
@@ -273,7 +275,9 @@ void setup()
   //u8g2.clearBuffer();
   oled.clearBuffer();
 
-  config.token = gettoken();
+  config.token = server.GetToken(config.servername);
+  Serial.println("config.token:");
+  Serial.println(config.token);
 }
 
 void loop()
@@ -334,7 +338,7 @@ void loop()
       }
       else
       {
-        if (error_code == 1)
+        if (config.error_code == 1)
         {
           // u8g2.clearBuffer();
           // u8g2_print_ch(0, 15, "租借失敗");
@@ -373,7 +377,7 @@ void loop()
             // u8g2.sendBuffer();
             oled.twolines("綁定成功", "請重新操作");
             Serial.println("bind success");
-            success = true;
+            config.success = true;
           }
           else
           {
@@ -383,7 +387,7 @@ void loop()
             // u8g2.sendBuffer();
             oled.twolines("綁定失敗", "請重新操作");
             Serial.println("bind fail");
-            success = true;
+            config.success = true;
           }
           delay(3000);
         }
@@ -399,7 +403,7 @@ void loop()
           //「 租借失敗 」
           //「 請先歸還杯子 」
           delay(3000);
-          success = true;
+          config.success = true;
         }
         else if (config.error_code == 3)
         {
@@ -616,7 +620,7 @@ void loop()
             // u8g2.sendBuffer();
             oled.twolines("綁定成功", "請重新操作");
             Serial.println("bind success");
-            success = true;
+            config.success = true;
           }
           else
           {
@@ -626,7 +630,7 @@ void loop()
             // u8g2.sendBuffer();
             oled.twolines("綁定失敗", "請重新操作");
             Serial.println("bind fail");
-            success = true;
+            config.success = true;
           }
 
           delay(3000);
