@@ -14,6 +14,7 @@ struct Config
     String stdID = "";                                        //User's Student ID
     String uid = "";                                          // User's NFC ID
     String qrcode = "";                                       // User's uCup line qrcode
+    String token = "";
     bool success = false;
     int button_cnt = -1;
 };

@@ -273,7 +273,7 @@ void setup()
   //u8g2.clearBuffer();
   oled.clearBuffer();
 
-  token = gettoken();
+  config.token = gettoken();
 }
 
 void loop()
