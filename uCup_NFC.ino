@@ -86,57 +86,57 @@ Rfid rc522(SS_PIN, RST_PIN);
 //   buffer[len * 2] = '\0';
 // }
 
-String gettoken()
-{
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    HTTPClient http;
+// String gettoken()
+// {
+//   if (WiFi.status() == WL_CONNECTED)
+//   {
+//     HTTPClient http;
 
-    // Your Domain name with URL path or IP address with path
-    http.begin(config.servername + "/stores/login");
+//     // Your Domain name with URL path or IP address with path
+//     http.begin(config.servername + "/stores/login");
 
-    // Specify content-type header
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    // Data to send with HTTP POST
-    String httpRequestData = "phone=0900000000&password=choosebetterbebetter";
-    // Send HTTP POST request
-    int httpResponseCode = http.POST(httpRequestData);
-    StaticJsonDocument<900> doc;
-    DeserializationError error = deserializeJson(doc, http.getString());
+//     // Specify content-type header
+//     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+//     // Data to send with HTTP POST
+//     String httpRequestData = "phone=0900000000&password=choosebetterbebetter";
+//     // Send HTTP POST request
+//     int httpResponseCode = http.POST(httpRequestData);
+//     StaticJsonDocument<900> doc;
+//     DeserializationError error = deserializeJson(doc, http.getString());
 
-    // log err
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return "0";
-    }
+//     // log err
+//     if (error)
+//     {
+//       Serial.print(F("deserializeJson() failed: "));
+//       Serial.println(error.f_str());
+//       return "0";
+//     }
 
-    //parse the data to get token
-    String token = doc["token"];
-    token = "Bearer " + token;
-    Serial.println("token:");
-    Serial.println(token);
-    return token;
-  }
-  else
-  {
-    return "WIFI disconnected.";
-  }
-}
+//     //parse the data to get token
+//     String token = doc["token"];
+//     token = "Bearer " + token;
+//     Serial.println("token:");
+//     Serial.println(token);
+//     return token;
+//   }
+//   else
+//   {
+//     return "WIFI disconnected.";
+//   }
+// }
 int cup_record(String token, String stdID, String provider, String type, String operation)
 {
   if (WiFi.status() == WL_CONNECTED)
   {
     HTTPClient http;
 
-    http.begin(config.servername + "/record" + operation);
+    http.begin(servername + "/record" + operation);
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     http.addHeader("Authorization", token);
 
     String httpRequestData = "user_id=" + stdID + "&provider=" + provider + "&cup_type=" + type;
     //log info of http req
-    Serial.println(config.servername + "/record" + operation);
+    Serial.println(servername + "/record" + operation);
     Serial.print("token: ");
     Serial.println(token);
     Serial.print("req data: ");
@@ -172,13 +172,13 @@ int cup_bind(String token, String nfc_id, String ntu_id)
   {
     HTTPClient http;
 
-    http.begin(config.servername + "/users/bind_ntu_nfc");
+    http.begin(servername + "/users/bind_ntu_nfc");
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     http.addHeader("Authorization", token);
 
     String httpRequestData = "nfc_id=" + nfc_id + "&ntu_id=" + ntu_id;
     //log info of http req
-    Serial.println(config.servername + "/users/bind_ntu_nfc");
+    Serial.println(servername + "/users/bind_ntu_nfc");
     Serial.print("token: ");
     Serial.println(token);
     Serial.print("req data: ");
@@ -275,7 +275,7 @@ void setup()
   //u8g2.clearBuffer();
   oled.clearBuffer();
 
-  config.token = server.GetToken(config.servername);
+  config.token = server.GetToken();
   Serial.println("config.token:");
   Serial.println(config.token);
 }
@@ -316,7 +316,7 @@ void loop()
     {
       Serial.println("uid:");
       Serial.println(rc522.detect(config.uid));
-      int http_code = cup_record(token, config.uid, "NFC", "uCup", "/do_rent");
+      int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "/do_rent", config.error_code);
       if (http_code == 200)
       {
         // u8g2.clearBuffer();
@@ -364,7 +364,7 @@ void loop()
             int bind_work = barcode.detect(9, config.stdID);
             if (bind_work == 1)
             {
-              bind_http_code = cup_bind(token, config.uid, config.stdID);
+              bind_http_code = cup_bind(config.token, config.uid, config.stdID);
               break;
             }
           }
@@ -452,7 +452,7 @@ void loop()
     {
       Serial.print("qrcode: ");
       Serial.println(config.qrcode);
-      int http_code = cup_record(token, config.qrcode, "Normal", "uCup", "/do_rent");
+      int http_code = server.CupRecord(config.token, config.qrcode, "Normal", "uCup", "/do_rent", config.error_code);
       if (http_code == 200)
       {
         Serial.println("rent qrcode success");
@@ -562,7 +562,7 @@ void loop()
     {
       Serial.print("uid: ");
       Serial.println(config.uid);
-      int http_code = cup_record(token, config.uid, "NFC", "uCup", "./do_return");
+      int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "./do_return", config.error_code);
       if (http_code == 200)
       {
         // u8g2.clearBuffer();
@@ -607,7 +607,7 @@ void loop()
             int bind_work = barcode.detect(9, config.stdID);
             if (bind_work == 1)
             {
-              bind_http_code = cup_bind(token, config.uid, config.stdID);
+              bind_http_code = cup_bind(config.token, config.uid, config.stdID);
               break;
             }
           }
@@ -690,7 +690,7 @@ void loop()
     {
       Serial.print("qrcode: ");
       Serial.println(config.qrcode);
-      int http_code = cup_record(token, config.uid, "NFC", "uCup", "/do_return");
+      int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "/do_return", config.error_code);
       if (http_code == 200)
       {
         Serial.println("return qrcode success");

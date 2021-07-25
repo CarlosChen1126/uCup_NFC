@@ -6,9 +6,10 @@ class MyServer
 {
 public:
     MyServer();
-    String GetToken(String);
-    int CupRecord(String, String, String, String, String);
+    String GetToken();
+    int CupRecord(String, String, String, String, String, int &);
     int CupBind(String, String, String);
+    void ErrHandle(int);
 
 private:
 };
