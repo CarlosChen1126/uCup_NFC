@@ -1,7 +1,7 @@
 #pragma once
 #include "Config.h"
 #include "Arduino.h"
-#include "String.h"
+//#include "String.h"
 class MyServer
 {
 public:

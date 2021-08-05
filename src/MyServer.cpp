@@ -1,6 +1,6 @@
 #include "MyServer.h"
 #include <Arduino.h>
-#include "String.h"
+//#include "String.h"
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include "Config.h"

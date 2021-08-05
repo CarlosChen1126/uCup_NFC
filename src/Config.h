@@ -3,7 +3,7 @@
 #define RETURN 1
 #define BIND_TIME 5000 //ms
 #include <Arduino.h>
-#include <String.h>
+//#include <String.h>
 const String servername = "https://ucup-dev.herokuapp.com/api";
 struct Config
 {
