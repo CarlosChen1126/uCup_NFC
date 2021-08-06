@@ -43,11 +43,7 @@ const int SS_PIN = 5;     // Slave select pin
 Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 Button button(17);
 Config config;
-<<<<<<< HEAD
 SoftwareSerial barcode(14, 12);
-=======
-Barcode barcode(14, 26);
->>>>>>> 49fa9d10ab0ca581e081b899ede5216ef315ef07
 Buzzer buzzer(2);
 LED LED_R(27);
 LED LED_G(13);
@@ -226,8 +222,8 @@ int detect_scan()
       index++;
     }
     std_id_barcode[index] = '\0';
-    //String stdid_tmp(std_id_barcode);
-    //config.qrcode = stdid_tmp;
+    String stdid_tmp(std_id_barcode);
+    config.qrcode = stdid_tmp;
     return 1;
   }
   return 0;
@@ -292,11 +288,7 @@ void setup()
     //log WiFi error
     Serial.println("WiFi connected NG");
   }
-<<<<<<< HEAD
-  //SPI.begin(); // Init SPI bus
-=======
   SPI.begin(); // Init SPI bus
->>>>>>> 49fa9d10ab0ca581e081b899ede5216ef315ef07
   //mfrc522.PCD_Init();                // Init MFRC522
   //mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
@@ -333,16 +325,12 @@ void loop()
     int barcode_work = 0;
     int start_rent_time = 0;
     start_rent_time = millis();
-<<<<<<< HEAD
     if (detect_scan())
     {
       Serial.println("id");
       Serial.println(config.qrcode);
     }
     //config.qrcode = barcode.test();
-=======
-    config.qrcode = barcode.test();
->>>>>>> 49fa9d10ab0ca581e081b899ede5216ef315ef07
     // u8g2.clearBuffer();
     // u8g2_print_ch(0, 15, "租借模式");
     // u8g2_print_ch(0, 60, "請感應學生證");
@@ -351,11 +339,6 @@ void loop()
     //      if (button == 0){
     //        button_ctn += 1;
     //        success = false;
-<<<<<<< HEAD
-=======
-    Serial.println("test:");
-    Serial.println(config.qrcode);
->>>>>>> 49fa9d10ab0ca581e081b899ede5216ef315ef07
     if (rfid_work == 1)
     {
       Serial.println("uid:");

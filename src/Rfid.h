@@ -1,9 +1,6 @@
 #pragma once
 //#include <String.h>
-<<<<<<< HEAD
 #include "Arduino.h"
-=======
->>>>>>> 49fa9d10ab0ca581e081b899ede5216ef315ef07
 #include <MFRC522.h>
 
 class Rfid : public MFRC522
