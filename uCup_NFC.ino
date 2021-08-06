@@ -1,5 +1,5 @@
 #include "WiFi.h"
-#include <String.h>
+//#include <String.h>
 #include <SPI.h>
 #include <Wire.h>
 #include "esp_wpa2.h"
@@ -10,30 +10,32 @@
 #include "./src/Oled.h"
 #include "./src/Button.h"
 #include "./src/Config.h"
-#include "./src/Barcode.h"
+#include <SoftwareSerial.h>
+//#include "./src/Barcode.h"
 #include "./src/Buzzer.h"
 #include "./src/LED.h"
 #include "./src/MyServer.h"
 //set WiFi name and password
-// char *ssid = "carlos";
-// char *passphrase = "carlosyoyo";
+char *ssid = "carlos";
+char *passphrase = "carlosyoyo";
 
 // char *ssid = "MakerSpace_2.4G";
 // char *passphrase = "ntueesaad";
 
-#define EAP_IDENTITY "b08901048"  //if connecting from another corporation, use identity@organisation.domain in Eduroam
-#define EAP_PASSWORD "Carlos1126" //your Eduroam password
-const char *ssid = "ntu_peap";
+// #define EAP_IDENTITY "b08901048"  //if connecting from another corporation, use identity@organisation.domain in Eduroam
+// #define EAP_PASSWORD "Carlos1126" //your Eduroam password
+// const char *ssid = "ntu_peap";
 #define RENT 0
 #define RETURN 1
 #define BIND_TIME 5000 //ms
 
 //hi
 String token;
+char std_id_barcode[36];
 const int BUZZ_PIN = 2;   //Buzzer pin
 const int LED_RED = 27;   //Red LED pin
 const int LED_GREEN = 13; //Blue LED pin
-const int RST_PIN = 36;   // Reset pin
+const int RST_PIN = 33;   // Reset pin
 const int SS_PIN = 5;     // Slave select pin
 //const String serverName = "https://ucup-dev.herokuapp.com/api";
 //SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
@@ -41,11 +43,12 @@ const int SS_PIN = 5;     // Slave select pin
 Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 Button button(17);
 Config config;
-Barcode barcode(12, 14);
+SoftwareSerial barcode(14, 12);
 Buzzer buzzer(2);
 LED LED_R(27);
 LED LED_G(13);
 MyServer server;
+Rfid rc522(SS_PIN, RST_PIN);
 // byte uidd[4];
 // char uid_char[9];
 // String uid;
@@ -57,23 +60,23 @@ MyServer server;
 // int error_code = -1;
 // bool success = false;
 //MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
-Rfid rc522(SS_PIN, RST_PIN);
-// bool testWifi(void)
-// {
-//   int c = 0;
-//   Serial.println("Waiting for Wifi to connect");
-//   while (c < 20)
-//   {
-//     if (WiFi.status() == WL_CONNECTED)
-//     {
-//       return true;
-//     }
-//     delay(500);
-//     Serial.print(WiFi.status());
-//     c++;
-//   }
-//   return false;
-// }
+
+bool testWifi(void)
+{
+  int c = 0;
+  Serial.println("Waiting for Wifi to connect");
+  while (c < 20)
+  {
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      return true;
+    }
+    delay(500);
+    Serial.print(WiFi.status());
+    c++;
+  }
+  return false;
+}
 // void array_to_string(byte array[], unsigned int len, char buffer[])
 // {
 //   for (unsigned int i = 0; i < len; i++)
@@ -208,40 +211,58 @@ int cup_bind(String token, String nfc_id, String ntu_id)
     return 87;
   }
 }
+int detect_scan()
+{
+  int index = 0;
+  if (barcode.available())
+  {
+    while (index < 36)
+    {
+      std_id_barcode[index] = (char)(barcode.read());
+      index++;
+    }
+    std_id_barcode[index] = '\0';
+    //String stdid_tmp(std_id_barcode);
+    //config.qrcode = stdid_tmp;
+    return 1;
+  }
+  return 0;
+}
 void setup()
 {
-  Serial.begin(9600); // Initialize serial communications with the PCSerial.begin(9600);
+  Serial.begin(115200); // Initialize serial communications with the PCSerial.begin(9600);
   //begin WiFi
-  //WiFi.begin(ssid, passphrase);
+  WiFi.begin(ssid, passphrase);
+  barcode.begin(9600);
   //begin barcode
   //BarcodeScanner.begin(9600);
   //pin for button
   //pinMode(17, INPUT_PULLUP);
   Serial.print("Connecting to network: ");
   Serial.println(ssid);
-  WiFi.disconnect(true);                                                             //disconnect form wifi to set new wifi connection
-  WiFi.mode(WIFI_STA);                                                               //init wifi mode
-  esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
-  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
-  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
-  esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
-  esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
-  WiFi.begin(ssid);                                                                  //connect to wifi
-  int counter = 0;
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-    counter++;
-    if (counter >= 60)
-    { //after 30 seconds timeout - reset board
-      ESP.restart();
-    }
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address set: ");
-  Serial.println(WiFi.localIP()); //print LAN IP
+  // WiFi.disconnect(true);                                                             //disconnect form wifi to set new wifi connection
+  // WiFi.mode(WIFI_STA);                                                               //init wifi mode
+  // esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
+  // esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
+  // esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
+  // esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
+  // esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
+  // WiFi.begin(ssid);                                                                  //connect to wifi
+  // int counter = 0;
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(500);
+  //   Serial.print(".");
+  //   counter++;
+  //   if (counter >= 60)
+  //   { //after 30 seconds timeout - reset board
+  //     ESP.restart();
+  //   }
+  // }
+  // Serial.println("");
+  // Serial.println("WiFi connected");
+  // Serial.println("IP address set: ");
+  // Serial.println(WiFi.localIP()); //print LAN IP
   //init Buzzer
   //pinMode(BUZZ_PIN, OUTPUT);
   //init LED
@@ -255,19 +276,19 @@ void setup()
   // u8g2_print_en(15, 40, "uCup");
   oled.twolines_en("Welcome", "uCup");
 
-  //  if (testWifi())
-  //  {
-  //    //show WiFi IP address
-  //    Serial.println("WiFi connected OK");
-  //    Serial.print("Local IP: ");
-  //    Serial.println(WiFi.localIP());
-  //  }
-  //  else
-  //  {
-  //    //log WiFi error
-  //    Serial.println("WiFi connected NG");
-  //  }
-  SPI.begin(); // Init SPI bus
+  if (testWifi())
+  {
+    //show WiFi IP address
+    Serial.println("WiFi connected OK");
+    Serial.print("Local IP: ");
+    Serial.println(WiFi.localIP());
+  }
+  else
+  {
+    //log WiFi error
+    Serial.println("WiFi connected NG");
+  }
+  //SPI.begin(); // Init SPI bus
   //mfrc522.PCD_Init();                // Init MFRC522
   //mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
@@ -276,6 +297,7 @@ void setup()
   oled.clearBuffer();
 
   config.token = server.GetToken();
+  //server.testtoken(config.token);
   Serial.println("config.token:");
   Serial.println(config.token);
 }
@@ -292,26 +314,31 @@ void loop()
   //   success = false;
   // }
   button.click(config.button_cnt, config.success);
-
+  //Serial.println(config.button_cnt);
   switch (config.button_cnt % 2)
   {
   case RENT:
   {
     //rent
+    oled.twolines("租借模式", "請感應學生證");
     int rfid_work = rc522.detect(config.uid);
-    int barcode_work = barcode.detect(36, config.qrcode);
+    int barcode_work = 0;
     int start_rent_time = 0;
     start_rent_time = millis();
+    if (detect_scan())
+    {
+      Serial.println("id");
+      Serial.println(config.qrcode);
+    }
+    //config.qrcode = barcode.test();
     // u8g2.clearBuffer();
     // u8g2_print_ch(0, 15, "租借模式");
     // u8g2_print_ch(0, 60, "請感應學生證");
     // u8g2.sendBuffer();
-    oled.twolines("租借模式", "請感應學生證");
     //show rent message
     //      if (button == 0){
     //        button_ctn += 1;
     //        success = false;
-    //      }
     if (rfid_work == 1)
     {
       Serial.println("uid:");
@@ -361,10 +388,10 @@ void loop()
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
           {
-            int bind_work = barcode.detect(9, config.stdID);
+            int bind_work = 0;
             if (bind_work == 1)
             {
-              bind_http_code = cup_bind(config.token, config.uid, config.stdID);
+              bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
               break;
             }
           }
@@ -544,7 +571,7 @@ void loop()
   {
     //return
     int rfid_work = rc522.detect(config.uid);
-    int barcode_work = barcode.detect(36, config.qrcode);
+    int barcode_work = 0;
     int start_return_time = 0;
     start_return_time = millis();
     oled.twolines("歸還模式", "請感應學生證");
@@ -604,10 +631,10 @@ void loop()
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
           {
-            int bind_work = barcode.detect(9, config.stdID);
+            int bind_work = 0;
             if (bind_work == 1)
             {
-              bind_http_code = cup_bind(config.token, config.uid, config.stdID);
+              bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
               break;
             }
           }

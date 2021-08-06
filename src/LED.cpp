@@ -5,6 +5,7 @@
 LED::LED(int pin) : _pin(pin)
 {
     pinMode(_pin, OUTPUT);
+    Serial.println("LED ready");
 }
 
 //blink(int BlinkSec) //ms

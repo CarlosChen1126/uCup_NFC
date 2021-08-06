@@ -1,5 +1,5 @@
 #include "Oled.h"
-#include <String.h>
+//#include <String.h>
 #include <Arduino.h>
 
 //constructor inherent from U8G2_SSD1306_128X64_NONAME_F_SW_I2C

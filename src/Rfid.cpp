@@ -1,13 +1,14 @@
 #include "Rfid.h"
-#include <SPI.h>
 #include <Arduino.h>
-#include <MFRC522.h>
-
 Rfid::Rfid(int Ss, int Rst) : _SSPin(Ss), _RSTPin(Rst)
 {
-    SPI.begin();
     PCD_Init();
     PCD_DumpVersionToSerial();
+    // MIFARE_Key key;
+    // for (byte i = 0; i < 6; i++)
+    // {
+    //     key.keyByte[i] = 0xFF;
+    // }
 }
 
 void Rfid::arr2str(byte *arr, const unsigned int len, char *str)
