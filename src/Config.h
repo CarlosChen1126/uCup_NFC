@@ -18,4 +18,6 @@ struct Config
     String token = "";
     bool success = false;
     int button_cnt = -1;
+    int rfid_work = 0;
+    int barcode_work = 0;
 };

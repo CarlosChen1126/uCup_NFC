@@ -34,7 +34,6 @@ String MyServer::GetToken()
     //parse the data to get token
     String token = doc["token"];
     token = "Bearer " + token;
-    Serial.println("tttttt");
     Serial.println("token:");
     Serial.println(token);
     return token;
@@ -52,7 +51,7 @@ int MyServer::CupBind(String token, String nfc_id, String ntu_id)
         String httpRequestData = "nfc_id=" + nfc_id + "&ntu_id=" + ntu_id;
         //log info of http req
         Serial.println(servername + "/users/bind_ntu_nfc");
-        Serial.print("bind req data: ");
+        Serial.print("bind req: ");
         Serial.println(httpRequestData);
         Serial.println("binding");
         StaticJsonDocument<900> doc;
@@ -91,10 +90,11 @@ int MyServer::CupRecord(String token, String std_id, String provider, String typ
 
         String httpRequestData = "user_id=" + std_id + "&provider=" + provider + "&cup_type=" + type;
         //log info of http req
+        Serial.print("Url: ");
         Serial.println(servername + "/record" + operation);
         Serial.print("token: ");
         Serial.println(token);
-        Serial.print("req data: ");
+        Serial.print("req: ");
         Serial.println(httpRequestData);
         Serial.print("operation: ");
         Serial.println(operation);
