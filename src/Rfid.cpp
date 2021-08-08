@@ -2,8 +2,6 @@
 #include <Arduino.h>
 Rfid::Rfid(int Ss, int Rst) : _SSPin(Ss), _RSTPin(Rst)
 {
-    PCD_Init();
-    PCD_DumpVersionToSerial();
     // MIFARE_Key key;
     // for (byte i = 0; i < 6; i++)
     // {

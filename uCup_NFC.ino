@@ -27,7 +27,7 @@ char *passphrase = "carlosyoyo";
 // const char *ssid = "ntu_peap";
 #define RENT 0
 #define RETURN 1
-#define BIND_TIME 5000 //ms
+#define BIND_TIME 8000 //ms
 
 //hi
 String token;
@@ -35,7 +35,7 @@ char std_id_barcode[36];
 const int BUZZ_PIN = 2;   //Buzzer pin
 const int LED_RED = 27;   //Red LED pin
 const int LED_GREEN = 13; //Blue LED pin
-const int RST_PIN = 33;   // Reset pin
+const int RST_PIN = 36;   // Reset pin
 const int SS_PIN = 5;     // Slave select pin
 //const String serverName = "https://ucup-dev.herokuapp.com/api";
 //SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
@@ -48,7 +48,8 @@ Buzzer buzzer(2);
 LED LED_R(27);
 LED LED_G(13);
 MyServer server;
-Rfid rc522(SS_PIN, RST_PIN);
+Rfid rc522(19, 20);
+
 // byte uidd[4];
 // char uid_char[9];
 // String uid;
@@ -211,7 +212,7 @@ int cup_bind(String token, String nfc_id, String ntu_id)
     return 87;
   }
 }
-int detect_scan()
+int detect_barcode()
 {
   int index = 0;
   if (barcode.available())
@@ -288,9 +289,9 @@ void setup()
     //log WiFi error
     Serial.println("WiFi connected NG");
   }
-  SPI.begin(); // Init SPI bus
-  //mfrc522.PCD_Init();                // Init MFRC522
-  //mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
+  SPI.begin();                     // Init SPI bus
+  rc522.PCD_Init();                // Init MFRC522
+  rc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
   delay(2000);
   //u8g2.clearBuffer();
@@ -322,14 +323,25 @@ void loop()
     //rent
     oled.twolines("租借模式", "請感應學生證");
     int rfid_work = rc522.detect(config.uid);
-    int barcode_work = 0;
+    int barcode_work = detect_barcode();
     int start_rent_time = 0;
     start_rent_time = millis();
-    if (detect_scan())
-    {
-      Serial.println("id");
-      Serial.println(config.qrcode);
-    }
+
+    // debugging
+    // if (detect_barcode())
+    // {
+    //   Serial.println("id");
+    //   Serial.println(config.qrcode);
+    // }
+    // if (!rc522.PICC_IsNewCardPresent())
+    // {
+    //   return;
+    // }
+    // if (!rc522.PICC_ReadCardSerial())
+    // {
+    //   return;
+    // }
+    // rc522.PICC_DumpToSerial(&(rc522.uid));
     //config.qrcode = barcode.test();
     // u8g2.clearBuffer();
     // u8g2_print_ch(0, 15, "租借模式");
@@ -571,7 +583,7 @@ void loop()
   {
     //return
     int rfid_work = rc522.detect(config.uid);
-    int barcode_work = 0;
+    int barcode_work = detect_barcode();
     int start_return_time = 0;
     start_return_time = millis();
     oled.twolines("歸還模式", "請感應學生證");
@@ -579,7 +591,6 @@ void loop()
     // u8g2_print_ch(0, 15, "歸還模式");
     // u8g2_print_ch(0, 40, "請感應學生證");
     // u8g2.sendBuffer();
-
     //      if (button == 0){
     //        button_ctn += 1;
     //        success = false;
