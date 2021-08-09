@@ -11,7 +11,10 @@ LED::LED(int pin) : _pin(pin)
 //blink(int BlinkSec) //ms
 void LED::blink(int ms)
 {
+    int start_time = millis();
     digitalWrite(_pin, HIGH);
-    delay(ms);
-    digitalWrite(_pin, LOW);
+    if (millis() - start_time > ms)
+    {
+        digitalWrite(_pin, LOW);
+    }
 }

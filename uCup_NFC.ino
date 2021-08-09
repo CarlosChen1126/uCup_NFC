@@ -311,7 +311,8 @@ void setup()
   delay(2000);
   //u8g2.clearBuffer();
   oled.clearBuffer();
-
+  LED_G.blink(2000);
+  LED_R.blink(2000);
   config.token = server.GetToken();
   Serial.println("config.token:");
   Serial.println(config.token);
