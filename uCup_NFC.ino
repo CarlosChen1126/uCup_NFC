@@ -220,8 +220,11 @@ int detect_qrcode()
     int start_time = millis();
     while (index < 36 && millis() - start_time < 100)
     {
-      std_id_barcode[index] = (char)(barcode.read());
-      index++;
+      if (barcode.available())
+      {
+        std_id_barcode[index] = (char)(barcode.read());
+        index++;
+      }
     }
     std_id_barcode[index] = '\0';
     String stdid_tmp(std_id_barcode);
