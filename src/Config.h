@@ -20,4 +20,6 @@ struct Config
     int button_cnt = -1;
     int rfid_work = 0;
     int barcode_work = 0;
+    String last_uid = "";
+    String last_qrcode = "";
 };

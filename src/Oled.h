@@ -10,6 +10,8 @@ public:
     void print_en(int, int, String);
     void twolines(String, String);
     void twolines_en(String, String);
+    void printc(int, int, String);
+    void printe(int, int, String);
 
 private:
 };

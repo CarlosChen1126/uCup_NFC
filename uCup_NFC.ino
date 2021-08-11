@@ -16,9 +16,11 @@
 #include "./src/LED.h"
 #include "./src/MyServer.h"
 //set WiFi name and password
-char *ssid = "carlos";
-char *passphrase = "carlosyoyo";
+//char *ssid = "carlos";
+//char *passphrase = "carlosyoyo";
 
+char *ssid = "CarlosChen";
+char *passphrase = "iloveangel";
 // char *ssid = "MakerSpace_2.4G";
 // char *passphrase = "ntueesaad";
 
@@ -50,18 +52,6 @@ LED LED_G(13);
 MyServer server;
 Rfid rc522(19, 20);
 
-// byte uidd[4];
-// char uid_char[9];
-// String uid;
-// char std_id_barcode[9];
-// char qrcode_barcode[36];
-// String stdid;
-// String qrcode;
-// bool is_card_valid = false;
-// int error_code = -1;
-// bool success = false;
-//MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance
-
 bool testWifi(void)
 {
   int c = 0;
@@ -78,147 +68,13 @@ bool testWifi(void)
   }
   return false;
 }
-// void array_to_string(byte array[], unsigned int len, char buffer[])
-// {
-//   for (unsigned int i = 0; i < len; i++)
-//   {
-//     byte nib1 = (array[i] >> 4) & 0x0F;
-//     byte nib2 = (array[i] >> 0) & 0x0F;
-//     buffer[i * 2 + 0] = nib1 < 0xA ? '0' + nib1 : 'A' + nib1 - 0xA;
-//     buffer[i * 2 + 1] = nib2 < 0xA ? '0' + nib2 : 'A' + nib2 - 0xA;
-//   }
-//   buffer[len * 2] = '\0';
-// }
-
-// String gettoken()
-// {
-//   if (WiFi.status() == WL_CONNECTED)
-//   {
-//     HTTPClient http;
-
-//     // Your Domain name with URL path or IP address with path
-//     http.begin(config.servername + "/stores/login");
-
-//     // Specify content-type header
-//     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-//     // Data to send with HTTP POST
-//     String httpRequestData = "phone=0900000000&password=choosebetterbebetter";
-//     // Send HTTP POST request
-//     int httpResponseCode = http.POST(httpRequestData);
-//     StaticJsonDocument<900> doc;
-//     DeserializationError error = deserializeJson(doc, http.getString());
-
-//     // log err
-//     if (error)
-//     {
-//       Serial.print(F("deserializeJson() failed: "));
-//       Serial.println(error.f_str());
-//       return "0";
-//     }
-
-//     //parse the data to get token
-//     String token = doc["token"];
-//     token = "Bearer " + token;
-//     Serial.println("token:");
-//     Serial.println(token);
-//     return token;
-//   }
-//   else
-//   {
-//     return "WIFI disconnected.";
-//   }
-// }
-int cup_record(String token, String stdID, String provider, String type, String operation)
-{
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    HTTPClient http;
-
-    http.begin(servername + "/record" + operation);
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    http.addHeader("Authorization", token);
-
-    String httpRequestData = "user_id=" + stdID + "&provider=" + provider + "&cup_type=" + type;
-    //log info of http req
-    Serial.println(servername + "/record" + operation);
-    Serial.print("token: ");
-    Serial.println(token);
-    Serial.print("req data: ");
-    Serial.println(httpRequestData);
-    Serial.print("operation: ");
-    Serial.println(operation);
-    StaticJsonDocument<1500> doc;
-    int httpResponseCode = http.POST(httpRequestData);
-    String res = http.getString();
-    DeserializationError error = deserializeJson(doc, res);
-    Serial.print("cup_httpcode: ");
-    Serial.println(httpResponseCode);
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return 87;
-    }
-
-    config.error_code = doc["error_code"];
-    Serial.print("error_code: ");
-    Serial.println(config.error_code);
-    return httpResponseCode;
-  }
-  else
-  {
-    return 87;
-  }
-}
-int cup_bind(String token, String nfc_id, String ntu_id)
-{
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    HTTPClient http;
-
-    http.begin(servername + "/users/bind_ntu_nfc");
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    http.addHeader("Authorization", token);
-
-    String httpRequestData = "nfc_id=" + nfc_id + "&ntu_id=" + ntu_id;
-    //log info of http req
-    Serial.println(servername + "/users/bind_ntu_nfc");
-    Serial.print("token: ");
-    Serial.println(token);
-    Serial.print("req data: ");
-    Serial.println(httpRequestData);
-    Serial.println("binding");
-    StaticJsonDocument<500> doc;
-    int httpResponseCode = http.POST(httpRequestData);
-    String res = http.getString();
-    DeserializationError error = deserializeJson(doc, res);
-
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return 87;
-    }
-
-    int res_code = doc["error_record"];
-    Serial.print("cup_httpcode: ");
-    Serial.println(httpResponseCode);
-    Serial.print("error_code: ");
-    Serial.println(res_code);
-    return httpResponseCode;
-  }
-  else
-  {
-    return 87;
-  }
-}
-int detect_qrcode()
+int detect_barcode(int len, String &ID)
 {
   int index = 0;
   if (barcode.available())
   {
     int start_time = millis();
-    while (index < 36 && millis() - start_time < 100)
+    while (index < len && millis() - start_time < 100)
     {
       if (barcode.available())
       {
@@ -228,13 +84,15 @@ int detect_qrcode()
     }
     std_id_barcode[index] = '\0';
     String stdid_tmp(std_id_barcode);
-    config.qrcode = stdid_tmp;
+    ID = stdid_tmp;
     return 1;
   }
   return 0;
 }
 void finish()
 {
+  config.last_qrcode = config.qrcode;
+  config.last_uid = config.uid;
   config.qrcode = "";
   config.stdID = "";
   config.uid = "";
@@ -250,10 +108,6 @@ void setup()
   //begin WiFi
   WiFi.begin(ssid, passphrase);
   barcode.begin(9600);
-  //begin barcode
-  //BarcodeScanner.begin(9600);
-  //pin for button
-  //pinMode(17, INPUT_PULLUP);
   Serial.print("Connecting to network: ");
   Serial.println(ssid);
   // WiFi.disconnect(true);                                                             //disconnect form wifi to set new wifi connection
@@ -279,17 +133,6 @@ void setup()
   // Serial.println("WiFi connected");
   // Serial.println("IP address set: ");
   // Serial.println(WiFi.localIP()); //print LAN IP
-  //init Buzzer
-  //pinMode(BUZZ_PIN, OUTPUT);
-  //init LED
-  // pinMode(LED_GREEN, OUTPUT);
-  // pinMode(LED_RED, OUTPUT);
-  //begin OLED
-  // u8g2.begin();
-  // u8g2.enableUTF8Print();
-  // u8g2.clearBuffer();
-  // u8g2_print_en(15, 15, "Welcome");
-  // u8g2_print_en(15, 40, "uCup");
   oled.twolines_en("Welcome", "uCup");
 
   if (testWifi())
@@ -311,30 +154,22 @@ void setup()
   delay(2000);
   //u8g2.clearBuffer();
   oled.clearBuffer();
-  LED_G.blink(2000);
-  LED_R.blink(2000);
+  LED_G.blink(1000);
+  LED_R.blink(1000);
   config.token = server.GetToken();
   Serial.println("config.token:");
   Serial.println(config.token);
   if (config.token == 0)
   {
-    oled.print_ch(15, 15, "請重新開機");
+    oled.printc(15, 15, "請重新開機");
   }
+  oled.printe(15, 15, "Touch to Start");
 }
 
 void loop()
 {
   // manage the operation mode
-  // Serial.print("Token: ");
-  // Serial.println(token);
-  // int button = digitalRead(17);
-  // if (button == 0)
-  // {
-  //   button_ctn += 1;
-  //   success = false;
-  // }
   button.click(config.button_cnt, config.success);
-  //Serial.println(config.button_cnt);
   switch (config.button_cnt % 2)
   {
   case RENT:
@@ -342,48 +177,23 @@ void loop()
     //rent
     oled.twolines("租借模式", "請感應學生證");
     config.rfid_work = rc522.detect(config.uid);
-    config.barcode_work = detect_qrcode();
-    // debugging
-    // if (detect_barcode())
-    // {
-    //   Serial.println("id");
-    //   Serial.println(config.qrcode);
-    // }
-    // if (!rc522.PICC_IsNewCardPresent())
-    // {
-    //   return;
-    // }
-    // if (!rc522.PICC_ReadCardSerial())
-    // {
-    //   return;
-    // }
-    // rc522.PICC_DumpToSerial(&(rc522.uid));
-    //config.qrcode = barcode.test();
-    // u8g2.clearBuffer();
-    // u8g2_print_ch(0, 15, "租借模式");
-    // u8g2_print_ch(0, 60, "請感應學生證");
-    // u8g2.sendBuffer();
+    config.barcode_work = detect_barcode(36, config.qrcode);
     //show rent message
-    //      if (button == 0){
-    //        button_ctn += 1;
-    //        success = false;
     if (config.rfid_work == 1)
     {
+
+      oled.printc(35, 40, "載入中");
+
       Serial.println("uid:");
       Serial.println(rc522.detect(config.uid));
       int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "/do_rent", config.error_code);
-      oled.print_ch(15, 15, "載入中");
       if (http_code == 200)
       {
         oled.twolines("租借成功", "謝謝惠顧");
         Serial.println("rent 200");
-        LED_G.blink(1500);
-        //success
-        //TODO: print success text
-        //「 租借成功 」
-        //「 謝謝惠顧 」
+        LED_G.blink(2000);
         finish();
-        delay(1500);
+        delay(1000);
       }
       else
       {
@@ -395,7 +205,7 @@ void loop()
           //「 請先註冊uCup會員 」
           oled.twolines("租借失敗", "請先註冊會員");
           Serial.println("rent rfid 1");
-          delay(2000);
+          delay(2500);
           Serial.println("direct to bind mode");
 
           oled.twolines("綁定模式", "請掃描學生證條碼");
@@ -403,7 +213,7 @@ void loop()
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
           {
-            int bind_work = 0;
+            int bind_work = detect_barcode(9, config.stdID);
             if (bind_work == 1)
             {
               bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
@@ -420,7 +230,7 @@ void loop()
             oled.twolines("綁定成功", "請重新操作");
             Serial.println("bind success");
             finish();
-            //config.success = true;
+            LED_G.blink(1000);
           }
           else
           {
@@ -431,9 +241,9 @@ void loop()
             oled.twolines("綁定失敗", "請重新操作");
             Serial.println("bind fail");
             finish();
-            //config.success = true;
+            LED_R.blink(1000);
           }
-          delay(3000);
+          delay(2000);
         }
         else if (config.error_code == 2 || config.error_code == 21)
         {
@@ -447,8 +257,8 @@ void loop()
           //「 租借失敗 」
           //「 請先歸還杯子 」
           finish();
-          delay(3000);
-          //config.success = true;
+          LED_R.blink(2000);
+          delay(1000);
         }
         else if (config.error_code == 3)
         {
@@ -463,54 +273,45 @@ void loop()
           //「 租借失敗 」
           //「 上次租借未滿30分鐘」
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
         }
         else if (config.error_code == 4)
         {
           Serial.println("rent rfid 4");
           oled.twolines("租借失敗", "商店杯子不足");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "租借失敗");
-          // u8g2_print_ch(0, 40, "商店杯子不足");
-          // u8g2.sendBuffer();
-          //cups in the store < 3
-          //「 租借失敗 」
-          //「 商店杯子不足 」
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
         }
         else if (config.error_code == 5)
         {
           Serial.print("rent 5");
           oled.twolines("租借失敗", "請先註冊帳號");
-
-          // not verified
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "租借失敗");
-          // u8g2_print_ch(0, 40, "請先註冊帳號");
-          // u8g2.sendBuffer();
-          //「 租借失敗 」
-          //「請先綁定帳號」
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
         }
       }
     }
     else if (config.barcode_work == 1)
     {
+
       Serial.print("qrcode: ");
       Serial.println(config.qrcode);
+      if (config.last_qrcode == config.qrcode)
+      {
+        Serial.println("Same qrcode again");
+        break;
+      }
       int http_code = server.CupRecord(config.token, config.qrcode, "Normal", "uCup", "/do_rent", config.error_code);
       if (http_code == 200)
       {
         Serial.println("rent qrcode success");
         oled.twolines("租借成功", "謝謝惠顧");
-        // u8g2.clearBuffer();
-        // u8g2_print_ch(0, 15, "租借成功");
-        // u8g2_print_ch(0, 40, "謝謝惠顧");
-        // u8g2.sendBuffer();
         finish();
-        delay(3000);
+        LED_G.blink(2000);
+        delay(1000);
         //success
         //TODO: print success text
       }
@@ -520,12 +321,9 @@ void loop()
         {
           Serial.println("rent qrcode 1");
           oled.twolines("租借失敗", "請先註冊會員");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "租借失敗");
-          // u8g2_print_ch(0, 40, "請先註冊會員");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //not registered
           //「 租借失敗 」
           //「 請先註冊uCup會員 」
@@ -534,12 +332,9 @@ void loop()
         {
           Serial.println("rent qrcode 2");
           oled.twolines("租借失敗", "請先歸還杯子");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "租借失敗");
-          // u8g2_print_ch(0, 40, "請先歸還杯子");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //last borrowed cup not return
           //「 租借失敗 」
           //「 請先歸還杯子 」
@@ -553,7 +348,8 @@ void loop()
           // u8g2_print_ch(0, 40, "上次租借未滿30分鐘");
           // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //last borrowed less than 30mins
           //「 租借失敗 」
           //「 上次租借未滿30分鐘」
@@ -567,7 +363,8 @@ void loop()
           // u8g2_print_ch(0, 40, "商店杯子不足");
           // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //cups in the store < 3
           //「 租借失敗 」
           //「 商店杯子不足 」
@@ -584,7 +381,8 @@ void loop()
           //「 租借失敗 」
           //「請先綁定帳號」
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
         }
       }
     }
@@ -594,22 +392,14 @@ void loop()
   {
     //return
     config.rfid_work = rc522.detect(config.uid);
-    config.barcode_work = detect_qrcode();
+    config.barcode_work = detect_barcode(36, config.qrcode);
     oled.twolines("歸還模式", "請感應學生證");
-    // u8g2.clearBuffer();
-    // u8g2_print_ch(0, 15, "歸還模式");
-    // u8g2_print_ch(0, 40, "請感應學生證");
-    // u8g2.sendBuffer();
-    //      if (button == 0){
-    //        button_ctn += 1;
-    //        success = false;
-    //      }
     //show return message
     if (config.rfid_work == 1)
     {
       Serial.print("uid: ");
       Serial.println(config.uid);
-      int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "./do_return", config.error_code);
+      int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "/do_return", config.error_code);
       if (http_code == 200)
       {
         // u8g2.clearBuffer();
@@ -622,9 +412,9 @@ void loop()
         //TODO: print success text
         //「 歸還成功 」
         //「 謝謝惠顧 」
-
+        LED_G.blink(2000);
         finish();
-        delay(3000);
+        delay(1000);
       }
       else
       {
@@ -637,7 +427,7 @@ void loop()
           // u8g2_print_ch(0, 40, "請先註冊會員");
           // u8g2.sendBuffer();
           Serial.println("rent rfid 1");
-          delay(2000);
+          LED_R.blink(2000);
           Serial.println("direct to bind mode");
           // u8g2.clearBuffer();
           // u8g2_print_ch(0, 15, "綁定模式");
@@ -657,53 +447,38 @@ void loop()
           }
           if (bind_http_code == 200)
           {
-            //bind success
-            // u8g2.clearBuffer();
-            // u8g2_print_ch(0, 15, "綁定成功");
-            // u8g2_print_ch(0, 40, "請重新操作");
-            // u8g2.sendBuffer();
             oled.twolines("綁定成功", "請重新操作");
             Serial.println("bind success");
             finish();
-            //config.success = true;
+            LED_G.blink(2000);
           }
           else
           {
-            // u8g2.clearBuffer();
-            // u8g2_print_ch(0, 15, "綁定失敗");
-            // u8g2_print_ch(0, 40, "請重新操作");
-            // u8g2.sendBuffer();
             oled.twolines("綁定失敗", "請重新操作");
             Serial.println("bind fail");
             finish();
-            //config.success = true;
+            LED_R.blink(2000);
           }
 
-          delay(3000);
+          delay(1000);
           //not registered
         }
         else if (config.error_code == 2 || config.error_code == 21)
         {
           Serial.println("return rfid 2");
           oled.twolines("歸還失敗", "請先歸還杯子");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "請先歸還杯子");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //last borrowed cup not return
         }
         else if (config.error_code == 3)
         {
           Serial.println("return rfid 3");
           oled.twolines("歸還失敗", "上次歸還未滿30分鐘");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "上次歸還未滿30分鐘");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
 
           //last borrowed less than 30mins
         }
@@ -711,12 +486,9 @@ void loop()
         {
           Serial.println("return rfid 4");
           oled.twolines("歸還失敗", "商店杯子不足");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "商店杯子不足");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //cups in the store < 3
           //「 歸還失敗 」
           //「 商店杯子不足 」
@@ -725,12 +497,9 @@ void loop()
         {
           Serial.println("return rfid 5");
           oled.twolines("歸還失敗", "請先註冊帳號");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "請先綁定帳號");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           // not verified
           //「 歸還失敗 」
           //「」
@@ -746,12 +515,9 @@ void loop()
       {
         Serial.println("return qrcode success");
         oled.twolines("歸還成功", "謝謝惠顧");
-        // u8g2.clearBuffer();
-        // u8g2_print_ch(0, 15, "歸還成功");
-        // u8g2_print_ch(0, 40, "謝謝惠顧");
-        // u8g2.sendBuffer();
         finish();
-        delay(3000);
+        LED_G.blink(2000);
+        delay(1000);
         //success
         //TODO: print success text
       }
@@ -761,36 +527,27 @@ void loop()
         {
           Serial.println("return qrcode 1");
           oled.twolines("歸還失敗", "請先註冊會員");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "請先註冊會員");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //not registered
         }
         else if (config.error_code == 2 || config.error_code == 21)
         {
           Serial.println("return qrcode 2");
           oled.twolines("歸還失敗", "請先歸還杯子");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "請先歸還杯子");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //last borrowed cup not return
         }
         else if (config.error_code == 3)
         {
           Serial.println("return qrcode 3");
           oled.twolines("歸還失敗", "上次歸還未滿30分鐘");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "上次歸還未滿30分鐘");
-          // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //last borrowed less than 30mins
           //「 歸還失敗 」
           //「 上次租借未滿30分鐘」
@@ -804,7 +561,8 @@ void loop()
           // u8g2_print_ch(0, 40, "商店杯子不足");
           // u8g2.sendBuffer();
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
           //cups in the store < 3
         }
         else if (config.error_code == 5)
@@ -817,7 +575,8 @@ void loop()
           // u8g2.sendBuffer();
           // not verified
           finish();
-          delay(3000);
+          LED_R.blink(2000);
+          delay(1000);
         }
       }
     }

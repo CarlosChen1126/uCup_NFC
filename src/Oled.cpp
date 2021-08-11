@@ -43,3 +43,22 @@ void Oled::twolines_en(String text1, String text2)
     print_en(0, 60, text2);
     sendBuffer();
 }
+
+void Oled::printc(int x, int y, String text)
+{
+    clearBuffer();
+    setFont(u8g2_font_unifont_t_chinese1);
+    setFontDirection(0);
+    setCursor(x, y);
+    print(text);
+    sendBuffer();
+}
+void Oled::printe(int x, int y, String text)
+{
+    clearBuffer();
+    setFont(u8g2_font_unifont_t_chinese2);
+    setFontDirection(0);
+    setCursor(x, y);
+    print(text);
+    sendBuffer();
+}
