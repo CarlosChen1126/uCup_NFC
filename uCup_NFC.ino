@@ -16,17 +16,20 @@
 #include "./src/LED.h"
 #include "./src/MyServer.h"
 //set WiFi name and password
-//char *ssid = "carlos";
-//char *passphrase = "carlosyoyo";
-
-char *ssid = "CarlosChen";
-char *passphrase = "iloveangel";
+char *ssid = "carlos";
+char *passphrase = "carlosyoyo";
+//
+//char *ssid = "CarlosChen";
+//char *passphrase = "iloveangel";
 // char *ssid = "MakerSpace_2.4G";
 // char *passphrase = "ntueesaad";
 
-// #define EAP_IDENTITY "b08901048"  //if connecting from another corporation, use identity@organisation.domain in Eduroam
-// #define EAP_PASSWORD "Carlos1126" //your Eduroam password
-// const char *ssid = "ntu_peap";
+//char *ssid = "Xperia XZ2_e5ae";
+//char *passphrase = "thomas86514";
+
+//#define EAP_IDENTITY "b07605025"  //if connecting from another corporation, use identity@organisation.domain in Eduroam
+//#define EAP_PASSWORD "Andy246813579" //your Eduroam password
+//const char *ssid = "ntu_peap";
 #define RENT 0
 #define RETURN 1
 #define BIND_TIME 8000 //ms
@@ -110,34 +113,35 @@ void setup()
   barcode.begin(9600);
   Serial.print("Connecting to network: ");
   Serial.println(ssid);
-  // WiFi.disconnect(true);                                                             //disconnect form wifi to set new wifi connection
-  // WiFi.mode(WIFI_STA);                                                               //init wifi mode
-  // esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
-  // esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
-  // esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
-  // esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
-  // esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
-  // WiFi.begin(ssid);                                                                  //connect to wifi
-  // int counter = 0;
-  // while (WiFi.status() != WL_CONNECTED)
-  // {
-  //   delay(500);
-  //   Serial.print(".");
-  //   counter++;
-  //   if (counter >= 60)
-  //   { //after 30 seconds timeout - reset board
-  //     ESP.restart();
+  //   WiFi.disconnect(true);                                                             //disconnect form wifi to set new wifi connection
+  //   WiFi.mode(WIFI_STA);                                                               //init wifi mode
+  //   esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
+  //   esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
+  //   esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
+  //   esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
+  //   esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
+  //   WiFi.begin(ssid);                                                                  //connect to wifi
+  //   int counter = 0;
+  //   while (WiFi.status() != WL_CONNECTED)
+  //   {
+  //     delay(500);
+  //     Serial.print(".");
+  //     counter++;
+  //     if (counter >= 60)
+  //     { //after 30 seconds timeout - reset board
+  //       ESP.restart();
+  //     }
   //   }
-  // }
-  // Serial.println("");
-  // Serial.println("WiFi connected");
-  // Serial.println("IP address set: ");
-  // Serial.println(WiFi.localIP()); //print LAN IP
+  //   Serial.println("");
+  //   Serial.println("WiFi connected");
+  //   Serial.println("IP address set: ");
+  //   Serial.println(WiFi.localIP()); //print LAN IP
   oled.twolines_en("Welcome", "uCup");
 
   if (testWifi())
   {
     //show WiFi IP address
+    oled.printe(15,30,"WiFi OK");
     Serial.println("WiFi connected OK");
     Serial.print("Local IP: ");
     Serial.println(WiFi.localIP());
@@ -145,6 +149,8 @@ void setup()
   else
   {
     //log WiFi error
+    oled.printe(15,30,"WiFi error");
+    LED_R.blink(3000);
     Serial.println("WiFi connected NG");
   }
   SPI.begin();                     // Init SPI bus
@@ -216,6 +222,7 @@ void loop()
             int bind_work = detect_barcode(9, config.stdID);
             if (bind_work == 1)
             {
+              oled.printc(35, 40, "載入中");
               bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
               break;
             }
@@ -296,7 +303,7 @@ void loop()
     }
     else if (config.barcode_work == 1)
     {
-
+      oled.printc(35, 40, "載入中");
       Serial.print("qrcode: ");
       Serial.println(config.qrcode);
       if (config.last_qrcode == config.qrcode)
@@ -397,6 +404,7 @@ void loop()
     //show return message
     if (config.rfid_work == 1)
     {
+      oled.printc(35, 40, "載入中");
       Serial.print("uid: ");
       Serial.println(config.uid);
       int http_code = server.CupRecord(config.token, config.uid, "NFC", "uCup", "/do_return", config.error_code);
@@ -422,25 +430,18 @@ void loop()
         {
           Serial.println("return rfid 1");
           oled.twolines("歸還失敗", "請先註冊會員");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "歸還失敗");
-          // u8g2_print_ch(0, 40, "請先註冊會員");
-          // u8g2.sendBuffer();
           Serial.println("rent rfid 1");
           LED_R.blink(2000);
           Serial.println("direct to bind mode");
-          // u8g2.clearBuffer();
-          // u8g2_print_ch(0, 15, "綁定模式");
-          // u8g2_print_ch(0, 40, "請掃描學生證條碼");
-          // u8g2.sendBuffer();
           oled.twolines("綁定模式", "請掃描學生證條碼");
           int bind_start_time = millis();
           int bind_http_code = 0;
           while (millis() - bind_start_time < BIND_TIME)
           {
-            int bind_work = 0;
+            int bind_work = detect_barcode(9, config.stdID);
             if (bind_work == 1)
             {
+              oled.printc(35, 40, "載入中");
               bind_http_code = server.CupBind(config.token, config.uid, config.stdID);
               break;
             }
@@ -508,6 +509,7 @@ void loop()
     }
     else if (config.barcode_work == 1)
     {
+      oled.printc(35, 40, "載入中");
       Serial.print("qrcode: ");
       Serial.println(config.qrcode);
       int http_code = server.CupRecord(config.token, config.qrcode, "Normal", "uCup", "/do_return", config.error_code);
