@@ -8,7 +8,7 @@ MyServer::MyServer()
 {
 }
 
-String MyServer::GetToken()
+String MyServer::GetToken(String Account, String Password)
 {
     HTTPClient http;
     // Your Domain name with URL path or IP address with path
@@ -17,10 +17,12 @@ String MyServer::GetToken()
     // Specify content-type header
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     // Data to send with HTTP POST
-    String httpRequestData = "phone=0900000000&password=choosebetterbebetter";
+    String httpRequestData = "phone=" + Account + "&password=" + Password;
+    Serial.print("req:");
+    Serial.println(httpRequestData);
     // Send HTTP POST request
     int httpResponseCode = http.POST(httpRequestData);
-    StaticJsonDocument<900> doc;
+    DynamicJsonDocument doc(2000);
     DeserializationError error = deserializeJson(doc, http.getString());
 
     // log err
@@ -28,7 +30,8 @@ String MyServer::GetToken()
     {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
-        return "0";
+        String err = "err";
+        return err;
     }
 
     //parse the data to get token
@@ -54,7 +57,8 @@ int MyServer::CupBind(String token, String nfc_id, String ntu_id)
         Serial.print("bind req: ");
         Serial.println(httpRequestData);
         Serial.println("binding");
-        StaticJsonDocument<900> doc;
+        //StaticJsonDocument<2000> doc;
+        DynamicJsonDocument doc(5000);
         int httpResponseCode = http.POST(httpRequestData);
         String res = http.getString();
         DeserializationError error = deserializeJson(doc, res);
@@ -63,7 +67,7 @@ int MyServer::CupBind(String token, String nfc_id, String ntu_id)
         {
             Serial.print(F("deserializeJson() failed: "));
             Serial.println(error.f_str());
-            return 87;
+            return 877;
         }
 
         int res_code = doc["error_record"];
@@ -98,7 +102,8 @@ int MyServer::CupRecord(String token, String std_id, String provider, String typ
         Serial.println(httpRequestData);
         Serial.print("operation: ");
         Serial.println(operation);
-        StaticJsonDocument<1500> doc;
+        //StaticJsonDocument<1500> doc;
+        DynamicJsonDocument doc(1500);
         int httpResponseCode = http.POST(httpRequestData);
         String res = http.getString();
         DeserializationError error = deserializeJson(doc, res);
@@ -108,7 +113,7 @@ int MyServer::CupRecord(String token, String std_id, String provider, String typ
         {
             Serial.print(F("deserializeJson() failed: "));
             Serial.println(error.f_str());
-            return 87;
+            return 877;
         }
 
         errorcode = doc["error_code"];

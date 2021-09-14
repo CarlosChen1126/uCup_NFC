@@ -4,7 +4,8 @@
 #define BIND_TIME 5000 //ms
 #include <Arduino.h>
 //#include <String.h>
-const String servername = "https://ucup-dev.herokuapp.com/api";
+//const String servername = "https://ucup-dev.herokuapp.com/api"; //test
+const String servername = "https://better-u-cup.herokuapp.com/api"; //production
 struct Config
 {
     // const char *ssid;     //Wifi name
@@ -22,4 +23,78 @@ struct Config
     int barcode_work = 0;
     String last_uid = "";
     String last_qrcode = "";
+    //直營店
+    //String Account = "0900000000";
+    //String Password = "choosebetterbebetter";
+
+    //原典
+    //String Account = "83695755";
+    //String Password = "83695755";
+
+    //大一女比斯多
+    //String Account = "0935350223";
+    //String Password = "121535066";
+
+    //男一早餐店
+    // const char *ssid = "12345678";
+    // const char *passphrase = "12345678";
+    // String Account = "0955579263";
+    // String Password = "121544701";
+
+    //玉珍圜台大校園門市
+    //const char *ssid = "yzy888";
+    //const char *passphrase = "66kk0616";
+    //String Account = "0922441389";
+    //String Password = "121537853";
+
+    //水雲間
+    // const char *ssid = "sally";
+    // const char *passphrase = "23661686";
+    // String Account = "0977400989";
+    // String Password = "0977400989";
+
+    // const char *ssid = "MakerSpace_2.4G";
+    // const char *passphrase = "ntueesaad";
+
+    //teashop
+    // const char *ssid = "magic";
+    // const char *passphrase = "27380886";
+    // String Account = "teashop";
+    // String Password = "27380886";
+
+    //小鹿亂撞
+    // const char *ssid = "ichefpos_C_5G";
+    // const char *passphrase = "52609717";
+    // String Account = "dokidoki";
+    // String Password = "dokidoki";
+
+    //椰林
+    // const char *ssid = "Dcoffee";
+    // const char *passphrase = "223684222";
+    // String Account = "yelincabins";
+    // String Password = "yelincabins";
+
+    //黛黛
+    const char *ssid = "daliday";
+    const char *passphrase = "23685950";
+    String Account = "daliday";
+    String Password = "23685950";
+
+    //59
+    // const char *ssid = "";
+    // const char *passphrase = "";
+    // String Account = "fivenine59";
+    // String Password = "isawesome666";
+
+    //龜記
+    // const char *ssid = "";
+    // const char *passphrase = "";
+    // String Account = "guijigroup";
+    // String Password = "isgood666";
+
+    //墾丁
+    // const char *ssid = "";
+    // const char *passphrase = "";
+    // String Account = "kentingmilk";
+    // String Password = "isbetter666";
 };
