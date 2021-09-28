@@ -34,6 +34,7 @@
 // #define EAP_IDENTITY "b07605025"     //if connecting from another corporation, use identity@organisation.domain in Eduroam
 // #define EAP_PASSWORD "Andy246813579" //your Eduroam password
 // const char *ssid = "ntu_peap";
+
 #define RENT 0
 #define RETURN 1
 #define BIND_TIME 8000 //ms
@@ -149,14 +150,15 @@ void setup()
   WiFi.disconnect(true);
   //for normal WiFi
   WiFi.begin(config.ssid, config.passphrase);
+
   //for NTU peap                                                             //disconnect form wifi to set new wifi connection
-  // WiFi.mode(WIFI_STA);                                                               //init wifi mode
+  WiFi.mode(WIFI_STA); //init wifi mode
   // esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
   // esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
   // esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
   // esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
   // esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
-  //WiFi.begin(ssid);                                                                  //connect to wifi
+  // WiFi.begin(ssid);                                                                  //connect to wifi
   int counter = 0;
   oled.twolines_en("Store ID:", config.Account);
   delay(2000);

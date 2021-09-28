@@ -24,8 +24,10 @@ struct Config
     String last_uid = "";
     String last_qrcode = "";
     //直營店
-    //String Account = "0900000000";
-    //String Password = "choosebetterbebetter";
+    // char *ssid = "MakerSpace_2.4G";
+    // char *passphrase = "ntueesaad";
+    // String Account = "0900000000";
+    // String Password = "choosebetterbebetter";
 
     //原典
     //String Account = "83695755";
@@ -57,44 +59,48 @@ struct Config
     // const char *passphrase = "ntueesaad";
 
     //teashop
-    // const char *ssid = "magic";
+    // const char *ssid = "Magic";
     // const char *passphrase = "27380886";
     // String Account = "teashop";
     // String Password = "27380886";
 
     //小鹿亂撞
-    // const char *ssid = "ichefpos_C_5G";
+    // const char *ssid = "ichefpos_C";
     // const char *passphrase = "52609717";
     // String Account = "dokidoki";
     // String Password = "dokidoki";
 
     //椰林
     // const char *ssid = "Dcoffee";
-    // const char *passphrase = "223684222";
+    // const char *passphrase = "0223684222";
     // String Account = "yelincabins";
     // String Password = "yelincabins";
 
     //黛黛
-    const char *ssid = "daliday";
-    const char *passphrase = "23685950";
-    String Account = "daliday";
-    String Password = "23685950";
-
-    //59
-    // const char *ssid = "";
-    // const char *passphrase = "";
-    // String Account = "fivenine59";
-    // String Password = "isawesome666";
+    // const char *ssid = "Daily Dae";
+    // const char *passphrase = "23685950";
+    // String Account = "daliday";
+    // String Password = "23685950";
 
     //龜記
-    // const char *ssid = "";
-    // const char *passphrase = "";
+    // const char *ssid = "guiji2.4";
+    // const char *passphrase = "23660667";
     // String Account = "guijigroup";
     // String Password = "isgood666";
 
+    //59
+    // const char *ssid = "ZTE_B19BEC";
+    // const char *passphrase = "94694742";
+    // String Account = "fivenine59";
+    // String Password = "isawesome666";
+
     //墾丁
-    // const char *ssid = "";
-    // const char *passphrase = "";
+    // const char *ssid = "ZTE_B19A2F";
+    // const char *passphrase = "25502663";
     // String Account = "kentingmilk";
     // String Password = "isbetter666";
+
+    //女9果汁店
+    // String Account = "";
+    // String Password = "";
 };
