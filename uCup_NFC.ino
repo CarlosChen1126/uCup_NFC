@@ -152,7 +152,7 @@ void setup()
   WiFi.begin(config.ssid, config.passphrase);
 
   //for NTU peap                                                             //disconnect form wifi to set new wifi connection
-  WiFi.mode(WIFI_STA); //init wifi mode
+  //WiFi.mode(WIFI_STA); //init wifi mode
   // esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
   // esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
   // esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
