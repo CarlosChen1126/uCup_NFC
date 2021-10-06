@@ -26,12 +26,12 @@ struct Config
     //直營店
     // char *ssid = "MakerSpace_2.4G";
     // char *passphrase = "ntueesaad";
-    // String Account = "0900000000";
-    // String Password = "choosebetterbebetter";
+    //String Account = "0900000000";
+    //String Password = "choosebetterbebetter";
 
     //原典
-    //String Account = "83695755";
-    //String Password = "83695755";
+    String Account = "83695755";
+    String Password = "83695755";
 
     //大一女比斯多
     //String Account = "0935350223";
@@ -103,4 +103,8 @@ struct Config
     //女9果汁店
     // String Account = "";
     // String Password = "";
+
+    //瀚文
+    //const char *ssid = "hwww";
+    //const char *passphrase = "b07505027";
 };
