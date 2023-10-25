@@ -1,5 +1,5 @@
 #include "WiFi.h"
-//#include <String.h>
+// #include <String.h>
 #include <SPI.h>
 #include <Wire.h>
 #include "esp_wpa2.h"
@@ -11,43 +11,28 @@
 #include "./src/Button.h"
 #include "./src/Config.h"
 #include <SoftwareSerial.h>
-//#include "./src/Barcode.h"
+// #include "./src/Barcode.h"
 #include "./src/Buzzer.h"
 #include "./src/LED.h"
 #include "./src/MyServer.h"
-//set WiFi name and password
-//char *ssid = "carlos";
-//char *passphrase = "carlosyoyo";
-//
-//char *ssid = "CarlosChen";
-//char *passphrase = "iloveangel";
-// char *ssid = "MakerSpace_2.4G";
-// char *passphrase = "ntueesaad";
-
-// char *ssid = "Xperia XZ2_e5ae";
-// char *passphrase = "thomas86514";
-
-// char *ssid = "1FB";
-// char *passphrase = "0926665921";
-
-//原典, 玉珍園, 大一女, 歸還箱
-#define EAP_IDENTITY "b07605025"     //if connecting from another corporation, use identity@organisation.domain in Eduroam
-#define EAP_PASSWORD "Andy246813579" //your Eduroam password
-const char *ssid = "ntu_peap";
+// set WiFi name and password
+#define EAP_IDENTITY "ID"       // if connecting from another corporation, use identity@organisation.domain in Eduroam
+#define EAP_PASSWORD "PASSWORD" // your Eduroam password
+const char *ssid = "WIFI_NAME";
 
 #define RENT 0
 #define RETURN 1
-#define BIND_TIME 8000 //ms
+#define BIND_TIME 8000 // ms
 
 char std_id_barcode[36];
-const int BUZZ_PIN = 2;   //Buzzer pin
-const int LED_RED = 27;   //Red LED pin
-const int LED_GREEN = 13; //Blue LED pin
+const int BUZZ_PIN = 2;   // Buzzer pin
+const int LED_RED = 27;   // Red LED pin
+const int LED_GREEN = 13; // Blue LED pin
 const int RST_PIN = 36;   // Reset pin
 const int SS_PIN = 5;     // Slave select pin
-//const String serverName = "https://ucup-dev.herokuapp.com/api";
-//SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
-//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
+// const String serverName = "https://ucup-dev.herokuapp.com/api";
+// SoftwareSerial BarcodeScanner(12, 14); //rx,tx //barcode
+// U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, /* clock=*/SCL, /* data=*/SDA, /* reset=*/U8X8_PIN_NONE); //OLED
 Oled oled(U8G2_R0, SCL, SDA, U8X8_PIN_NONE);
 Button button(17);
 Config config;
@@ -146,19 +131,20 @@ void setup()
   Serial.begin(115200); // Initialize serial communications with the PCSerial.begin(9600);
   barcode.begin(9600);
   Serial.print("Connecting to network: ");
-  //Serial.println(config.ssid);
+  // Serial.println(config.ssid);
   WiFi.disconnect(true);
-  //for normal WiFi
-  //WiFi.begin(config.ssid, config.passphrase);
+  // for normal WiFi
+  // WiFi.begin(config.ssid, config.passphrase);
 
-  //for NTU peap                                                             //disconnect form wifi to set new wifi connection
-  WiFi.mode(WIFI_STA);                                                               //init wifi mode
-  esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide identity
-  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); //provide username --> identity and username is same
-  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); //provide password
-  esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         //set config settings to default
-  esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         //set config settings to enable function
-  WiFi.begin(ssid);                                                                  //connect to wifi
+  // for NTU peap                                                             //disconnect form wifi to set new wifi connection
+  WiFi.mode(WIFI_STA);                                                               // init wifi mode
+  esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); // provide identity
+  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY)); // provide username --> identity and username is same
+  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD)); // provide password
+  esp_wpa2_config_t esp_config = WPA2_CONFIG_INIT_DEFAULT();                         // set config settings to default
+  esp_wifi_sta_wpa2_ent_enable(&esp_config);                                         // set config settings to enable function
+  WiFi.begin(ssid);
+  // connect to wifi
   int counter = 0;
   oled.twolines_en("Store ID:", config.Account);
   delay(2000);
@@ -169,14 +155,14 @@ void setup()
     Serial.print(".");
     counter++;
     if (counter >= 60)
-    { //after 30 seconds timeout - reset board
+    { // after 30 seconds timeout - reset board
       ESP.restart();
     }
   }
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address set: ");
-  Serial.println(WiFi.localIP()); //print LAN IP
+  Serial.println(WiFi.localIP()); // print LAN IP
 
   if (testWifi())
   {
@@ -187,7 +173,7 @@ void setup()
   }
   else
   {
-    //log WiFi error
+    // log WiFi error
     oled.printe(15, 30, "WiFi error");
     LED_buzzer_fail();
     Serial.println("WiFi connected NG");
@@ -208,7 +194,7 @@ void setup()
     oled.twolines_en("error", "Please Restart");
     LED_buzzer_fail();
   }
-  //oled.printe(15, 15, "Touch to Start");
+  // oled.printe(15, 15, "Touch to Start");
   else
   {
     oled.twolines_en("Welcome uCup", "Touch to start");
@@ -224,14 +210,15 @@ void loop()
   {
   case RENT:
   {
-    //rent
+    // rent
     oled.twolines("借用模式", "請感應學生證");
     config.rfid_work = rc522.detect(config.uid);
     config.barcode_work = detect_barcode(36, config.qrcode);
-    //show rent message
-    if (config.rfid_work == 1)
+    // show rent message
+    if (config.rfid_work == 1 && config.uid.length() == 8)
     {
-
+      Serial.println("len:");
+      Serial.println(config.uid.length());
       oled.printc(40, 40, "載入中");
 
       Serial.println("uid:");
@@ -255,8 +242,8 @@ void loop()
         if (config.error_code == 1)
         {
           oled.twolines("借用失敗", "請先註冊帳號");
-          //delay(2000);
-          //oled.twolines_en("Not yet registered", "Please register first");
+          // delay(2000);
+          // oled.twolines_en("Not yet registered", "Please register first");
           Serial.println("rent rfid 1");
           LED_buzzer_fail();
           delay(2000);
@@ -329,9 +316,17 @@ void loop()
           LED_buzzer_fail();
           delay(1000);
         }
+        else if (config.error_code == 6)
+        {
+          Serial.println("rent qrcode 6");
+          oled.twolines_en("Authority", "Fail");
+          finish();
+          LED_buzzer_fail();
+          delay(1000);
+        }
       }
     }
-    else if (config.barcode_work == 1)
+    else if (config.barcode_work == 1 && config.qrcode.length() == 36)
     {
       oled.printc(40, 40, "載入中");
       Serial.print("qrcode: ");
@@ -397,18 +392,26 @@ void loop()
           LED_buzzer_fail();
           delay(1000);
         }
+        else if (config.error_code == 6)
+        {
+          Serial.println("rent qrcode 6");
+          oled.twolines_en("Authority", "Fail");
+          finish();
+          LED_buzzer_fail();
+          delay(1000);
+        }
       }
     }
     break;
   }
   case RETURN:
   {
-    //return
+    // return
     config.rfid_work = rc522.detect(config.uid);
     config.barcode_work = detect_barcode(36, config.qrcode);
     oled.twolines("歸還模式", "請感應學生證");
-    //show return message
-    if (config.rfid_work == 1)
+    // show return message
+    if (config.rfid_work == 1 && config.uid.length() == 8)
     {
       oled.printc(35, 40, "載入中");
       Serial.print("uid: ");
@@ -501,6 +504,14 @@ void loop()
           LED_buzzer_fail();
           delay(1000);
         }
+        else if (config.error_code == 6)
+        {
+          Serial.println("rent qrcode 6");
+          oled.twolines_en("Authority", "Fail");
+          finish();
+          LED_buzzer_fail();
+          delay(1000);
+        }
         else if (config.error_code == 9)
         {
           Serial.println("return rfid 9");
@@ -511,7 +522,7 @@ void loop()
         }
       }
     }
-    else if (config.barcode_work == 1)
+    else if (config.barcode_work == 1 && config.qrcode.length() == 36)
     {
       oled.printc(40, 40, "載入中");
       Serial.print("qrcode: ");
@@ -568,6 +579,14 @@ void loop()
         {
           Serial.println("return qrcode 5");
           oled.twolines("歸還失敗", "請先註冊帳號");
+          finish();
+          LED_buzzer_fail();
+          delay(1000);
+        }
+        else if (config.error_code == 6)
+        {
+          Serial.println("rent qrcode 6");
+          oled.twolines_en("Authority", "Fail");
           finish();
           LED_buzzer_fail();
           delay(1000);

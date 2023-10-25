@@ -26,12 +26,16 @@ struct Config
     //直營店
     // char *ssid = "MakerSpace_2.4G";
     // char *passphrase = "ntueesaad";
-    //String Account = "0900000000";
-    //String Password = "choosebetterbebetter";
+    // String Account = "0900000000";
+    // String Password = "choosebetterbebetter";
+    // char *ssid = "Xperia XZ2_e5ae";
+    // char *passphrase = "thomas86514";
+    // char *ssid = "1FB";
+    // char *passphrase = "0926665921";
 
     //原典
-    String Account = "83695755";
-    String Password = "83695755";
+    // String Account = "83695755";
+    // String Password = "83695755";
 
     //大一女比斯多
     //String Account = "0935350223";
@@ -44,10 +48,10 @@ struct Config
     // String Password = "121544701";
 
     //玉珍圜台大校園門市
-    //const char *ssid = "yzy888";
-    //const char *passphrase = "66kk0616";
-    //String Account = "0922441389";
-    //String Password = "121537853";
+    // const char *ssid = "yzy888";
+    // const char *passphrase = "66kk0616";
+    // String Account = "0922441389";
+    // String Password = "121537853";
 
     //水雲間
     // const char *ssid = "sally";
@@ -101,10 +105,22 @@ struct Config
     // String Password = "isbetter666";
 
     //女9果汁店
-    // String Account = "";
-    // String Password = "";
+    // String Account = "juicenine";
+    // String Password = "isverygood";
 
     //瀚文
     //const char *ssid = "hwww";
     //const char *passphrase = "b07505027";
+
+    //小小福果汁店
+    // String Account = "juicesmall";
+    // String Password = "isverybetter";
+
+    //清大同食角落
+    // String Account = "nthuhowcup1";
+    // String Password = "035715131";
+
+    //清大每天美天
+    String Account = "nthuhowcup2";
+    String Password = "035715131";
 };

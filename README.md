@@ -1,5 +1,5 @@
-# uCup_NFC_QRcode讀卡機
-這是一個專屬「杯特 uCup」的NFC+條碼二合一讀卡機，結合uCup的後台管理系統進行使用，方便使用者透過感應NTU學生證或uCup官方Line帳號之QRcode進行借用或歸還。
+# uCup NFC/QRcode Scanner
+This is an exclusive NFC and QRcode dual-function card reader designed for 'uCup' which is a product of BETTER Company Limited by Shares. It integrates with the uCup backend management system, allowing users to easily borrow or return reusable cups by scanning their NTU student ID or the official uCup Line account QR code.
 
 
 
