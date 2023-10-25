@@ -56,6 +56,9 @@ This is an exclusive NFC and QRcode dual-function card reader designed for 'uCup
 | x  | GPIO11  | GPIO7   | x|
 |Power for Barcode&Buzzer| VIN 5V | GPIO6 | x|
 
-## Element
+## PCB
+<img width="737" alt="截圖 2023-10-26 上午1 02 15" src="https://github.com/CarlosChen1126/uCup_NFC/assets/60618505/c26820db-f503-42c5-a39c-e854bb85870b">
 
 ## Schematic
+![Schematic](https://github.com/CarlosChen1126/uCup_NFC/assets/60618505/4b747422-538f-4a64-b393-d3d6516ad9f5)
+
