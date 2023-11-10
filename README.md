@@ -1,6 +1,7 @@
 # uCup NFC/QRcode Scanner
 This is an exclusive NFC and QRcode dual-function card reader designed for 'uCup' which is a product of BETTER Company Limited by Shares. It integrates with the uCup backend management system, allowing users to easily borrow or return reusable cups by scanning their NTU student ID or the official uCup Line account QR code.
 
+![Uploading S__83001346.jpg…]()
 
 
 ## structure
